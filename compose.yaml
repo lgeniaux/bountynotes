@@ -1,0 +1,35 @@
+services:
+  web:
+    build:
+      context: ./frontend
+    ports:
+      - "4200:4200"
+    depends_on:
+      - api
+
+  api:
+    build:
+      context: ./backend
+    environment:
+      APP_NAME: BountyNotes API
+      ENVIRONMENT: development
+      QDRANT_URL: http://qdrant:6333
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - qdrant
+
+  qdrant:
+    image: qdrant/qdrant:v1.12.2
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+volumes:
+  qdrant_data:
