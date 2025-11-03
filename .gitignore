@@ -1,0 +1,14 @@
+.DS_Store
+.env
+.venv/
+__pycache__/
+*.pyc
+
+backend/.pytest_cache/
+
+frontend/.angular/
+frontend/README.md
+frontend/dist/
+frontend/node_modules/
+
+data/
