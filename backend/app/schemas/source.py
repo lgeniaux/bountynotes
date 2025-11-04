@@ -1,0 +1,33 @@
+from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class SourceManualCreate(BaseModel):
+    title: str | None = Field(default=None, max_length=255)
+    raw_content: str = Field(min_length=1)
+
+
+class SourceListItem(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    title: str | None
+    source_type: str
+    status: str
+    created_at: datetime
+    updated_at: datetime
+
+
+class SourceRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    title: str | None
+    source_type: str
+    status: str
+    raw_content: str
+    clean_content: str | None
+    summary: str | None
+    created_at: datetime
+    updated_at: datetime
