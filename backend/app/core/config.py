@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     app_name: str = "BountyNotes API"
     api_prefix: str = "/api"
     environment: str = "development"
+    database_url: str = "sqlite:///data/bountynotes.db"
     qdrant_url: str = "http://qdrant:6333"
     deepseek_base_url: str = "https://api.deepseek.com"
     openai_base_url: str = "https://api.openai.com/v1"
