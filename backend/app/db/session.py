@@ -4,6 +4,7 @@ from pathlib import Path
 from sqlmodel import Session, SQLModel, create_engine
 
 from app.core.config import settings
+from app.models.source import Source
 
 
 def _sqlite_connect_args(database_url: str) -> dict[str, bool]:
