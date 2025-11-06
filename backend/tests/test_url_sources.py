@@ -1,0 +1,130 @@
+from pathlib import Path
+
+from fastapi.testclient import TestClient
+from sqlmodel import SQLModel, Session, create_engine
+
+import app.services.source_service as source_service
+from app.db.session import get_session
+from app.main import app
+from app.services.url_ingestion_service import UrlContentFetchError, UrlIngestionResult
+
+
+def test_url_source_flow(tmp_path: Path, monkeypatch) -> None:
+    database_path = tmp_path / "test.db"
+    engine = create_engine(
+        f"sqlite:///{database_path}",
+        connect_args={"check_same_thread": False},
+    )
+    SQLModel.metadata.create_all(engine)
+
+    def override_get_session() -> Session:
+        with Session(engine) as session:
+            yield session
+
+    def fake_ingest_url_content(url: str) -> UrlIngestionResult:
+        assert url == "https://example.com/writeup"
+        return UrlIngestionResult(
+            raw_content="Fetched article text",
+            clean_content="Fetched article text",
+        )
+
+    app.dependency_overrides[get_session] = override_get_session
+    monkeypatch.setattr(source_service, "ingest_url_content", fake_ingest_url_content)
+
+    try:
+        with TestClient(app) as client:
+            create_response = client.post(
+                "/sources/url",
+                json={
+                    "title": "Example write-up",
+                    "url": "https://example.com/writeup",
+                },
+            )
+
+            assert create_response.status_code == 201
+            created_source = create_response.json()
+            assert created_source["title"] == "Example write-up"
+            assert created_source["source_type"] == "url"
+            assert created_source["status"] == "draft"
+            assert created_source["raw_content"] == "Fetched article text"
+            assert created_source["clean_content"] == "Fetched article text"
+
+            list_response = client.get("/sources")
+            assert list_response.status_code == 200
+            listed_sources = list_response.json()
+            assert len(listed_sources) == 1
+            assert listed_sources[0]["id"] == created_source["id"]
+            assert listed_sources[0]["source_type"] == "url"
+
+            detail_response = client.get(f"/sources/{created_source['id']}")
+            assert detail_response.status_code == 200
+            assert detail_response.json()["raw_content"] == "Fetched article text"
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_url_source_rejects_forbidden_target(tmp_path: Path) -> None:
+    database_path = tmp_path / "test.db"
+    engine = create_engine(
+        f"sqlite:///{database_path}",
+        connect_args={"check_same_thread": False},
+    )
+    SQLModel.metadata.create_all(engine)
+
+    def override_get_session() -> Session:
+        with Session(engine) as session:
+            yield session
+
+    app.dependency_overrides[get_session] = override_get_session
+
+    try:
+        with TestClient(app) as client:
+            response = client.post(
+                "/sources/url",
+                json={
+                    "title": "Local target",
+                    "url": "http://localhost/internal",
+                },
+            )
+
+            assert response.status_code == 400
+            assert response.json()["detail"] == "localhost is not allowed"
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_url_source_returns_bad_gateway_when_fetch_fails(tmp_path: Path, monkeypatch) -> None:
+    database_path = tmp_path / "test.db"
+    engine = create_engine(
+        f"sqlite:///{database_path}",
+        connect_args={"check_same_thread": False},
+    )
+    SQLModel.metadata.create_all(engine)
+
+    def override_get_session() -> Session:
+        with Session(engine) as session:
+            yield session
+
+    def fake_ingest_url_content(url: str) -> UrlIngestionResult:
+        raise UrlContentFetchError(f"Could not fetch content for {url}")
+
+    app.dependency_overrides[get_session] = override_get_session
+    monkeypatch.setattr(source_service, "ingest_url_content", fake_ingest_url_content)
+
+    try:
+        with TestClient(app) as client:
+            response = client.post(
+                "/sources/url",
+                json={
+                    "title": "Broken page",
+                    "url": "https://example.com/unreachable",
+                },
+            )
+
+            assert response.status_code == 502
+            assert (
+                response.json()["detail"]
+                == "Could not fetch content for https://example.com/unreachable"
+            )
+    finally:
+        app.dependency_overrides.clear()
