@@ -1,9 +1,12 @@
 from pathlib import Path
+import socket
 
 from fastapi.testclient import TestClient
 from sqlmodel import SQLModel, Session, create_engine
 
+import app.clients.exa_client as exa_client_module
 import app.services.source_service as source_service
+import app.services.url_ingestion_service as url_ingestion_service
 from app.db.session import get_session
 from app.main import app
 from app.services.url_ingestion_service import UrlContentFetchError, UrlIngestionResult
@@ -126,5 +129,50 @@ def test_url_source_returns_bad_gateway_when_fetch_fails(tmp_path: Path, monkeyp
                 response.json()["detail"]
                 == "Could not fetch content for https://example.com/unreachable"
             )
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_url_source_returns_bad_gateway_when_exa_sdk_raises_unexpected_error(
+    tmp_path: Path, monkeypatch
+) -> None:
+    database_path = tmp_path / "test.db"
+    engine = create_engine(
+        f"sqlite:///{database_path}",
+        connect_args={"check_same_thread": False},
+    )
+    SQLModel.metadata.create_all(engine)
+
+    def override_get_session() -> Session:
+        with Session(engine) as session:
+            yield session
+
+    class FakeExa:
+        def __init__(self, api_key: str) -> None:
+            self.api_key = api_key
+
+        def get_contents(self, urls: list[str], text: dict[str, object]) -> object:
+            raise RuntimeError("provider timeout")
+
+    def fake_getaddrinfo(*args, **kwargs):
+        return [(socket.AF_INET, socket.SOCK_STREAM, 0, "", ("93.184.216.34", 0))]
+
+    app.dependency_overrides[get_session] = override_get_session
+    monkeypatch.setattr(url_ingestion_service.socket, "getaddrinfo", fake_getaddrinfo)
+    monkeypatch.setattr(exa_client_module, "Exa", FakeExa)
+    monkeypatch.setattr(exa_client_module.settings, "exa_api_key", "test-key")
+
+    try:
+        with TestClient(app) as client:
+            response = client.post(
+                "/sources/url",
+                json={
+                    "title": "Slow page",
+                    "url": "https://example.com/timeout",
+                },
+            )
+
+            assert response.status_code == 502
+            assert response.json()["detail"] == "Could not fetch URL content from Exa"
     finally:
         app.dependency_overrides.clear()
