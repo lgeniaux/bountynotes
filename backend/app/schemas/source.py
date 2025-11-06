@@ -8,6 +8,11 @@ class SourceManualCreate(BaseModel):
     raw_content: str = Field(min_length=1)
 
 
+class SourceUrlCreate(BaseModel):
+    title: str | None = Field(default=None, max_length=255)
+    url: str = Field(min_length=1, max_length=2048)
+
+
 class SourceListItem(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

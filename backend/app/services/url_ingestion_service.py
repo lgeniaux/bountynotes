@@ -72,7 +72,8 @@ def parse_ip_address(value: str) -> ipaddress.IPv4Address | ipaddress.IPv6Addres
         return ipaddress.ip_address(value)
     except ValueError:
         return None
-    
+
+
 # Reject non-public targets before calling Exa to reduce malicious page content impact.
 def ensure_public_ip(address: ipaddress.IPv4Address | ipaddress.IPv6Address) -> None:
     if (
