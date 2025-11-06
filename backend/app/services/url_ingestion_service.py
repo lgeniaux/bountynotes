@@ -3,7 +3,12 @@ import socket
 from dataclasses import dataclass
 from urllib.parse import urlparse
 
-from app.clients.exa_client import ExaClient, ExaClientError, get_exa_client
+from app.clients.exa_client import (
+    ExaClient,
+    ExaClientNotConfiguredError,
+    ExaClientError,
+    get_exa_client,
+)
 
 
 class InvalidUrlError(Exception):
@@ -15,6 +20,10 @@ class ForbiddenUrlError(Exception):
 
 
 class UrlContentFetchError(Exception):
+    pass
+
+
+class UrlIngestionConfigurationError(Exception):
     pass
 
 
@@ -61,7 +70,9 @@ def ensure_public_hostname(hostname: str) -> None:
 
     resolved_ips: set[str] = set()
     for _, _, _, _, sockaddr in address_infos:
-        resolved_ips.add(sockaddr[0])
+        host = sockaddr[0]
+        if isinstance(host, str):
+            resolved_ips.add(host)
 
     for value in resolved_ips:
         ensure_public_ip(ipaddress.ip_address(value))
@@ -93,6 +104,8 @@ def ingest_url_content(url: str, exa_client: ExaClient | None = None) -> UrlInge
 
     try:
         raw_content = client.fetch_clean_text(safe_url)
+    except ExaClientNotConfiguredError as exc:
+        raise UrlIngestionConfigurationError("EXA_API_KEY is not configured") from exc
     except ExaClientError as exc:
         raise UrlContentFetchError("Could not fetch URL content from Exa") from exc
 

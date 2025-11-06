@@ -13,6 +13,7 @@ from app.services.url_ingestion_service import (
     ForbiddenUrlError,
     InvalidUrlError,
     UrlContentFetchError,
+    UrlIngestionConfigurationError,
 )
 
 router = APIRouter(prefix="/sources", tags=["sources"])
@@ -40,6 +41,10 @@ def create_url_source_endpoint(
         ) from exc
     except ForbiddenUrlError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except UrlIngestionConfigurationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc)
+        ) from exc
     except UrlContentFetchError as exc:
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
 
