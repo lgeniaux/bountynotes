@@ -1,4 +1,28 @@
-<main>
-  <h1>Hello, {{ title() }}</h1>
-  <router-outlet />
-</main>
+<div class="app-shell">
+  <header class="app-header">
+    <div class="app-brand">
+      <p class="app-eyebrow">Bug bounty knowledge base</p>
+      <h1 class="app-title">BountyNotes</h1>
+    </div>
+
+    <nav aria-label="Primary" class="app-nav">
+      <span class="app-nav-item app-nav-item-active">Sources</span>
+      <span class="app-nav-item">Add</span>
+      <span class="app-nav-item">Ask</span>
+    </nav>
+  </header>
+
+  <main class="app-content">
+    <section class="app-panel">
+      <div class="app-panel-copy">
+        <p class="app-section-label">Workspace</p>
+        <h2 class="app-panel-title">Title Placeholder</h2>
+        <p class="app-panel-text">
+          Panel placeholder
+        </p>
+      </div>
+
+      <router-outlet />
+    </section>
+  </main>
+</div>
