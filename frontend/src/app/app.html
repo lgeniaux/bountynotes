@@ -6,22 +6,21 @@
     </div>
 
     <nav aria-label="Primary" class="app-nav">
-      <span class="app-nav-item app-nav-item-active">Sources</span>
-      <span class="app-nav-item">Add</span>
-      <span class="app-nav-item">Ask</span>
+      <a
+        routerLink="/sources"
+        routerLinkActive="app-nav-item-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="app-nav-item"
+      >
+        Sources
+      </a>
+      <a routerLink="/add" routerLinkActive="app-nav-item-active" class="app-nav-item">Add</a>
+      <a routerLink="/ask" routerLinkActive="app-nav-item-active" class="app-nav-item">Ask</a>
     </nav>
   </header>
 
   <main class="app-content">
     <section class="app-panel">
-      <div class="app-panel-copy">
-        <p class="app-section-label">Workspace</p>
-        <h2 class="app-panel-title">Title Placeholder</h2>
-        <p class="app-panel-text">
-          Panel placeholder
-        </p>
-      </div>
-
       <router-outlet />
     </section>
   </main>

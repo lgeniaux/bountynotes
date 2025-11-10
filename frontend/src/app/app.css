@@ -50,6 +50,7 @@
   font-size: 0.95rem;
   font-weight: 500;
   color: #4b5563;
+  text-decoration: none;
 }
 
 .app-nav-item-active {
@@ -70,35 +71,6 @@
   background: #ffffff;
 }
 
-.app-panel-copy {
-  max-width: 640px;
-  margin-bottom: 24px;
-}
-
-.app-section-label {
-  margin: 0 0 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #0369a1;
-}
-
-.app-panel-title {
-  margin: 0 0 12px;
-  font-size: 1.875rem;
-  line-height: 1.2;
-  font-weight: 600;
-}
-
-.app-panel-text {
-  margin: 0;
-  max-width: 56ch;
-  font-size: 1rem;
-  line-height: 1.65;
-  color: #4b5563;
-}
-
 @media (max-width: 720px) {
   .app-shell {
     padding: 16px;
@@ -112,9 +84,5 @@
 
   .app-panel {
     padding: 18px;
-  }
-
-  .app-panel-title {
-    font-size: 1.5rem;
   }
 }
