@@ -44,6 +44,7 @@
 .app-nav-item {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 36px;
   padding: 0 4px;
   border-bottom: 2px solid transparent;
@@ -84,5 +85,39 @@
 
   .app-panel {
     padding: 18px;
+  }
+
+  .app-nav {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .app-nav-item {
+    flex: 1 1 96px;
+    min-height: 40px;
+    padding: 0 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #ffffff;
+  }
+
+  .app-nav-item-active {
+    border-color: #bae6fd;
+    background: #f0f9ff;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-shell {
+    padding: 12px;
+  }
+
+  .app-title {
+    font-size: 1.25rem;
+  }
+
+  .app-panel {
+    min-height: 280px;
+    padding: 16px;
   }
 }
