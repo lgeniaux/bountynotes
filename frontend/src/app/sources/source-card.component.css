@@ -1,0 +1,96 @@
+.source-card {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.source-card-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.source-meta {
+  margin: 0 0 6px;
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.source-card h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.35;
+  color: #111827;
+}
+
+.source-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 8px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #075985;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.badge-status {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.source-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.source-details div {
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.source-details dt {
+  margin: 0 0 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.source-details dd {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+@media (max-width: 720px) {
+  .source-card-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .source-badges {
+    justify-content: start;
+  }
+
+  .source-details {
+    grid-template-columns: 1fr;
+  }
+}

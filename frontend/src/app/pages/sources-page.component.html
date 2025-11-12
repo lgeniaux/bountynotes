@@ -1,0 +1,39 @@
+@if (state$ | async; as state) {
+  <section class="sources-page">
+    <header class="sources-header">
+      <div>
+        <p class="page-kicker">Sources</p>
+        <h2>Source library</h2>
+      </div>
+      <p class="sources-count">{{ state.sources.length }} total</p>
+    </header>
+
+    <p class="page-intro">
+      Review the current source set before adding new write-ups or moving to the ask flow.
+    </p>
+
+    @if (state.isLoading) {
+      <app-page-state-card
+        title="Loading sources"
+        message="The page is requesting the latest source list from the API."
+      />
+    } @else if (state.errorMessage) {
+      <app-page-state-card
+        title="Could not load sources"
+        [message]="state.errorMessage"
+        tone="error"
+      />
+    } @else if (state.sources.length === 0) {
+      <app-page-state-card
+        title="No sources yet"
+        message="Add a manual note or a URL source to start building the knowledge base."
+      />
+    } @else {
+      <div class="sources-list" aria-label="Sources list">
+        @for (source of state.sources; track source.id) {
+          <app-source-card [source]="source" />
+        }
+      </div>
+    }
+  </section>
+}

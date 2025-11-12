@@ -1,46 +1,44 @@
-import { Component } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { catchError, map, Observable, of, startWith } from 'rxjs';
+
+import { PageStateCardComponent } from '../shared/page-state-card.component';
+import { SourceListItem } from '../sources/source-list-item';
+import { SourceCardComponent } from '../sources/source-card.component';
+import { SourcesApiService } from '../sources/sources-api.service';
+
+interface SourcesPageState {
+  sources: SourceListItem[];
+  isLoading: boolean;
+  errorMessage: string | null;
+}
 
 @Component({
   selector: 'app-sources-page',
-  template: `
-    <div class="page-copy">
-      <p class="page-kicker">Sources</p>
-      <h2>Source library landing page</h2>
-      <p>
-        This page will host the source list, filters, and status overview in the next frontend
-        slice.
-      </p>
-    </div>
-  `,
-  styles: `
-    .page-copy {
-      max-width: 640px;
-    }
-
-    .page-kicker {
-      margin: 0 0 8px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: #0369a1;
-    }
-
-    h2 {
-      margin: 0 0 12px;
-      font-size: 1.875rem;
-      line-height: 1.2;
-      font-weight: 600;
-      color: #111827;
-    }
-
-    p {
-      margin: 0;
-      max-width: 56ch;
-      font-size: 1rem;
-      line-height: 1.65;
-      color: #4b5563;
-    }
-  `,
+  imports: [AsyncPipe, PageStateCardComponent, SourceCardComponent],
+  templateUrl: './sources-page.component.html',
+  styleUrl: './sources-page.component.css',
 })
-export class SourcesPageComponent {}
+export class SourcesPageComponent {
+  private readonly sourcesApi = inject(SourcesApiService);
+
+  protected readonly state$: Observable<SourcesPageState> = this.sourcesApi.listSources().pipe(
+    map((sources) => ({
+      sources,
+      isLoading: false,
+      errorMessage: null,
+    })),
+    catchError(() =>
+      of({
+        sources: [],
+        isLoading: false,
+        errorMessage: 'Make sure the API is running on http://localhost:8000.',
+      }),
+    ),
+    startWith({
+      sources: [],
+      isLoading: true,
+      errorMessage: null,
+    }),
+  );
+}

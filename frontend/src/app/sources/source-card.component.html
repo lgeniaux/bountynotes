@@ -1,0 +1,24 @@
+<article class="source-card">
+  <div class="source-card-header">
+    <div>
+      <p class="source-meta">Source #{{ source.id }}</p>
+      <h3>{{ source.title?.trim() || 'Untitled source' }}</h3>
+    </div>
+
+    <div class="source-badges">
+      <span class="badge">{{ source.source_type | titlecase }}</span>
+      <span class="badge badge-status">{{ source.status | titlecase }}</span>
+    </div>
+  </div>
+
+  <dl class="source-details">
+    <div>
+      <dt>Created</dt>
+      <dd>{{ source.created_at | date: 'medium' }}</dd>
+    </div>
+    <div>
+      <dt>Updated</dt>
+      <dd>{{ source.updated_at | date: 'medium' }}</dd>
+    </div>
+  </dl>
+</article>
