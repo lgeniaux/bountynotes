@@ -4,5 +4,84 @@
     <h2>Source creation workspace</h2>
   </header>
 
-  <p class="page-intro">This page will host the manual and URL source forms in the next slice.</p>
+  <p class="page-intro">
+    Start with a pasted write-up. The URL flow stays separate until the manual path is stable.
+  </p>
+
+  <section class="mode-card">
+    <div class="mode-header">
+      <div>
+        <p class="section-kicker">Manual source</p>
+        <h3>Paste a write-up</h3>
+      </div>
+      <span class="mode-badge">Available now</span>
+    </div>
+
+    <form class="source-form" [formGroup]="manualForm" (ngSubmit)="submitManualSource()">
+      <label class="field">
+        <span class="field-label">Title</span>
+        <input
+          type="text"
+          formControlName="title"
+          placeholder="Optional short label"
+          maxlength="255"
+        />
+        @if (hasControlError('title', 'maxlength')) {
+          <span class="field-error">Title must stay under 255 characters.</span>
+        }
+      </label>
+
+      <label class="field">
+        <span class="field-label">Raw content</span>
+        <textarea
+          formControlName="raw_content"
+          rows="12"
+          placeholder="Paste the write-up content here"
+        ></textarea>
+        @if (hasControlError('raw_content', 'required')) {
+          <span class="field-error">Content is required.</span>
+        }
+      </label>
+
+      <div class="form-actions">
+        <a routerLink="/sources" class="secondary-link">Back to sources</a>
+        <button type="submit" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Saving...' : 'Save source' }}
+        </button>
+      </div>
+    </form>
+  </section>
+
+  @if (createdSource) {
+    <section class="feedback-card feedback-card-success">
+      <h3>Source created</h3>
+      <p>
+        <strong>{{ createdSource.title || 'Untitled source' }}</strong> is now stored with status
+        <strong>{{ createdSource.status }}</strong
+        >.
+      </p>
+      <a routerLink="/sources" class="feedback-link">Go to Sources</a>
+    </section>
+  }
+
+  @if (errorMessage) {
+    <section class="feedback-card feedback-card-error">
+      <h3>Could not save the source</h3>
+      <p>{{ errorMessage }}</p>
+    </section>
+  }
+
+  <section class="mode-card mode-card-muted">
+    <div class="mode-header">
+      <div>
+        <p class="section-kicker">URL source</p>
+        <h3>Fetch a page by URL</h3>
+      </div>
+      <span class="mode-badge mode-badge-muted">Next slice</span>
+    </div>
+
+    <p class="mode-copy">
+      The URL form arrives next so the manual flow stays simple, testable, and demo-ready.
+    </p>
+  </section>
 </section>
