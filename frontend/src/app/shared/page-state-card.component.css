@@ -1,28 +1,4 @@
 .state-card {
-  display: grid;
   gap: 8px;
   max-width: 720px;
-  padding: 18px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background: #f9fafb;
-}
-
-.state-card h3 {
-  margin: 0;
-  font-size: 1.1rem;
-  line-height: 1.35;
-  color: #111827;
-}
-
-.state-card p {
-  margin: 0;
-  font-size: 1rem;
-  line-height: 1.6;
-  color: #4b5563;
-}
-
-.state-card-error {
-  border-color: #fecaca;
-  background: #fef2f2;
 }

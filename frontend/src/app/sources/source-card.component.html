@@ -1,13 +1,13 @@
-<article class="source-card">
+<article class="source-card ui-card">
   <div class="source-card-header">
     <div>
-      <p class="source-meta">Source #{{ source.id }}</p>
-      <h3>{{ source.title?.trim() || 'Untitled source' }}</h3>
+      <p class="source-meta ui-kicker">Source #{{ source.id }}</p>
+      <h3 class="ui-card-title">{{ source.title?.trim() || 'Untitled source' }}</h3>
     </div>
 
     <div class="source-badges">
-      <span class="badge">{{ source.source_type | titlecase }}</span>
-      <span class="badge badge-status">{{ source.status | titlecase }}</span>
+      <span class="ui-badge ui-badge-accent">{{ source.source_type | titlecase }}</span>
+      <span class="ui-badge ui-badge-neutral">{{ source.status | titlecase }}</span>
     </div>
   </div>
 

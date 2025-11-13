@@ -1,51 +1,53 @@
-<section class="add-page">
-  <header class="add-page-header">
+<section class="page-layout add-page">
+  <header class="page-header add-page-header">
     <p class="page-kicker">Add</p>
-    <h2>Source creation workspace</h2>
+    <h2 class="page-title">Source creation workspace</h2>
   </header>
 
   <p class="page-intro">
     Add a source either by pasting a write-up or by letting the API fetch a public URL.
   </p>
 
-  <section class="mode-card">
+  <section class="mode-card ui-card">
     <div class="mode-header">
       <div>
-        <p class="section-kicker">Manual source</p>
-        <h3>Paste a write-up</h3>
+        <p class="section-kicker ui-kicker">Manual source</p>
+        <h3 class="ui-card-title">Paste a write-up</h3>
       </div>
-      <span class="mode-badge">Available now</span>
+      <span class="mode-badge ui-badge ui-badge-success">Available now</span>
     </div>
 
     <form class="source-form" [formGroup]="manualForm" (ngSubmit)="submitManualSource()">
-      <label class="field">
-        <span class="field-label">Title</span>
+      <label class="field ui-field">
+        <span class="field-label ui-field-label">Title</span>
         <input
+          class="ui-field-input"
           type="text"
           formControlName="title"
           placeholder="Optional short label"
           maxlength="255"
         />
         @if (hasManualControlError('title', 'maxlength')) {
-          <span class="field-error">Title must stay under 255 characters.</span>
+          <span class="field-error ui-field-error">Title must stay under 255 characters.</span>
         }
       </label>
 
-      <label class="field">
-        <span class="field-label">Raw content</span>
+      <label class="field ui-field">
+        <span class="field-label ui-field-label">Raw content</span>
         <textarea
+          class="ui-field-textarea"
           formControlName="raw_content"
           rows="12"
           placeholder="Paste the write-up content here"
         ></textarea>
         @if (hasManualControlError('raw_content', 'required')) {
-          <span class="field-error">Content is required.</span>
+          <span class="field-error ui-field-error">Content is required.</span>
         }
       </label>
 
       <div class="form-actions">
-        <a routerLink="/sources" class="secondary-link">Back to sources</a>
-        <button type="submit" [disabled]="isManualSubmitting">
+        <a routerLink="/sources" class="secondary-link ui-link-button">Back to sources</a>
+        <button class="ui-button" type="submit" [disabled]="isManualSubmitting">
           {{ isManualSubmitting ? 'Saving...' : 'Save source' }}
         </button>
       </div>
@@ -53,66 +55,68 @@
   </section>
 
   @if (createdManualSource) {
-    <section class="feedback-card feedback-card-success">
-      <h3>Source created</h3>
-      <p>
+    <section class="feedback-card ui-card ui-card-success">
+      <h3 class="ui-card-title">Source created</h3>
+      <p class="ui-copy">
         <strong>{{ createdManualSource.title || 'Untitled source' }}</strong> is now stored with
         status <strong>{{ createdManualSource.status }}</strong
         >.
       </p>
-      <a routerLink="/sources" class="feedback-link">Go to Sources</a>
+      <a routerLink="/sources" class="feedback-link ui-link-button">Go to Sources</a>
     </section>
   }
 
   @if (manualErrorMessage) {
-    <section class="feedback-card feedback-card-error">
-      <h3>Could not save the source</h3>
-      <p>{{ manualErrorMessage }}</p>
+    <section class="feedback-card ui-card ui-card-error">
+      <h3 class="ui-card-title">Could not save the source</h3>
+      <p class="ui-copy">{{ manualErrorMessage }}</p>
     </section>
   }
 
-  <section class="mode-card">
+  <section class="mode-card ui-card">
     <div class="mode-header">
       <div>
-        <p class="section-kicker">URL source</p>
-        <h3>Fetch a page by URL</h3>
+        <p class="section-kicker ui-kicker">URL source</p>
+        <h3 class="ui-card-title">Fetch a page by URL</h3>
       </div>
-      <span class="mode-badge">Available now</span>
+      <span class="mode-badge ui-badge ui-badge-success">Available now</span>
     </div>
 
     <form class="source-form" [formGroup]="urlForm" (ngSubmit)="submitUrlSource()">
-      <label class="field">
-        <span class="field-label">Title</span>
+      <label class="field ui-field">
+        <span class="field-label ui-field-label">Title</span>
         <input
+          class="ui-field-input"
           type="text"
           formControlName="title"
           placeholder="Optional short label"
           maxlength="255"
         />
         @if (hasUrlControlError('title', 'maxlength')) {
-          <span class="field-error">Title must stay under 255 characters.</span>
+          <span class="field-error ui-field-error">Title must stay under 255 characters.</span>
         }
       </label>
 
-      <label class="field">
-        <span class="field-label">URL</span>
+      <label class="field ui-field">
+        <span class="field-label ui-field-label">URL</span>
         <input
+          class="ui-field-input"
           type="url"
           formControlName="url"
           placeholder="https://example.com/writeup"
           maxlength="2048"
         />
         @if (hasUrlControlError('url', 'required')) {
-          <span class="field-error">URL is required.</span>
+          <span class="field-error ui-field-error">URL is required.</span>
         }
         @if (hasUrlControlError('url', 'maxlength')) {
-          <span class="field-error">URL must stay under 2048 characters.</span>
+          <span class="field-error ui-field-error">URL must stay under 2048 characters.</span>
         }
       </label>
 
       <div class="form-actions">
-        <span class="form-hint">The API will fetch and store the page content.</span>
-        <button type="submit" [disabled]="isUrlSubmitting">
+        <span class="form-hint ui-copy">The API will fetch and store the page content.</span>
+        <button class="ui-button" type="submit" [disabled]="isUrlSubmitting">
           {{ isUrlSubmitting ? 'Fetching...' : 'Save URL source' }}
         </button>
       </div>
@@ -120,21 +124,21 @@
   </section>
 
   @if (createdUrlSource) {
-    <section class="feedback-card feedback-card-success">
-      <h3>URL source created</h3>
-      <p>
+    <section class="feedback-card ui-card ui-card-success">
+      <h3 class="ui-card-title">URL source created</h3>
+      <p class="ui-copy">
         <strong>{{ createdUrlSource.title || 'Untitled source' }}</strong> is now stored with status
         <strong>{{ createdUrlSource.status }}</strong
         >.
       </p>
-      <a routerLink="/sources" class="feedback-link">Go to Sources</a>
+      <a routerLink="/sources" class="feedback-link ui-link-button">Go to Sources</a>
     </section>
   }
 
   @if (urlErrorMessage) {
-    <section class="feedback-card feedback-card-error">
-      <h3>Could not fetch the URL source</h3>
-      <p>{{ urlErrorMessage }}</p>
+    <section class="feedback-card ui-card ui-card-error">
+      <h3 class="ui-card-title">Could not fetch the URL source</h3>
+      <p class="ui-copy">{{ urlErrorMessage }}</p>
     </section>
   }
 </section>
