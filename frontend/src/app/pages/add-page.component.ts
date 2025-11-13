@@ -21,12 +21,21 @@ export class AddPageComponent {
     raw_content: this.formBuilder.control('', [Validators.required]),
   });
 
-  protected isSubmitting = false;
-  protected errorMessage: string | null = null;
-  protected createdSource: SourceRead | null = null;
+  protected readonly urlForm = this.formBuilder.group({
+    title: this.formBuilder.control('', [Validators.maxLength(255)]),
+    url: this.formBuilder.control('', [Validators.required, Validators.maxLength(2048)]),
+  });
+
+  protected isManualSubmitting = false;
+  protected manualErrorMessage: string | null = null;
+  protected createdManualSource: SourceRead | null = null;
+
+  protected isUrlSubmitting = false;
+  protected urlErrorMessage: string | null = null;
+  protected createdUrlSource: SourceRead | null = null;
 
   protected submitManualSource(): void {
-    if (this.manualForm.invalid || this.isSubmitting) {
+    if (this.manualForm.invalid || this.isManualSubmitting) {
       this.manualForm.markAllAsTouched();
       return;
     }
@@ -40,9 +49,9 @@ export class AddPageComponent {
       return;
     }
 
-    this.isSubmitting = true;
-    this.errorMessage = null;
-    this.createdSource = null;
+    this.isManualSubmitting = true;
+    this.manualErrorMessage = null;
+    this.createdManualSource = null;
 
     this.sourcesApi
       .createManualSource({
@@ -51,19 +60,64 @@ export class AddPageComponent {
       })
       .subscribe({
         next: (source) => {
-          this.createdSource = source;
+          this.createdManualSource = source;
           this.manualForm.reset({ title: '', raw_content: '' });
-          this.isSubmitting = false;
+          this.isManualSubmitting = false;
         },
         error: (error: unknown) => {
-          this.errorMessage = this.getErrorMessage(error);
-          this.isSubmitting = false;
+          this.manualErrorMessage = this.getErrorMessage(error);
+          this.isManualSubmitting = false;
         },
       });
   }
 
-  protected hasControlError(controlName: 'title' | 'raw_content', errorCode: string): boolean {
+  protected submitUrlSource(): void {
+    if (this.urlForm.invalid || this.isUrlSubmitting) {
+      this.urlForm.markAllAsTouched();
+      return;
+    }
+
+    const title = this.urlForm.controls.title.value?.trim() ?? '';
+    const url = this.urlForm.controls.url.value?.trim() ?? '';
+
+    if (!url) {
+      this.urlForm.controls.url.setErrors({ required: true });
+      this.urlForm.controls.url.markAsTouched();
+      return;
+    }
+
+    this.isUrlSubmitting = true;
+    this.urlErrorMessage = null;
+    this.createdUrlSource = null;
+
+    this.sourcesApi
+      .createUrlSource({
+        title: title || null,
+        url,
+      })
+      .subscribe({
+        next: (source) => {
+          this.createdUrlSource = source;
+          this.urlForm.reset({ title: '', url: '' });
+          this.isUrlSubmitting = false;
+        },
+        error: (error: unknown) => {
+          this.urlErrorMessage = this.getErrorMessage(error);
+          this.isUrlSubmitting = false;
+        },
+      });
+  }
+
+  protected hasManualControlError(
+    controlName: 'title' | 'raw_content',
+    errorCode: string,
+  ): boolean {
     const control = this.manualForm.controls[controlName];
+    return !!control.errors?.[errorCode] && (control.touched || control.dirty);
+  }
+
+  protected hasUrlControlError(controlName: 'title' | 'url', errorCode: string): boolean {
+    const control = this.urlForm.controls[controlName];
     return !!control.errors?.[errorCode] && (control.touched || control.dirty);
   }
 
