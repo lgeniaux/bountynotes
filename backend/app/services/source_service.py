@@ -4,7 +4,8 @@ from app.db.session import engine
 from app.models.source import Source
 from app.models.source import utc_now
 from app.schemas.source import SourceManualCreate, SourceUrlCreate
-from app.services.url_ingestion_service import ingest_url_content, normalize_text
+from app.services.preprocessing_service import preprocess_source_content
+from app.services.url_ingestion_service import ingest_url_content
 
 
 def create_manual_source(session: Session, payload: SourceManualCreate) -> Source:
@@ -52,15 +53,20 @@ def process_source(source_id: int) -> None:
         session.refresh(source)
 
         try:
-            processed_content = normalize_text(source.clean_content or source.raw_content)
-            if not processed_content:
-                raise ValueError("Source content is empty after normalization")
-
-            source.clean_content = processed_content
+            # Fail the source when preprocessing cannot run so the UI sees a clear runtime state.
+            preprocessing_result = preprocess_source_content(
+                source.clean_content or source.raw_content
+            )
+            source.clean_content = preprocessing_result.clean_content
+            source.summary = preprocessing_result.summary
+            source.techs = preprocessing_result.techs
+            source.tags = preprocessing_result.tags
+            source.cwes = preprocessing_result.cwes
+            source.cves = preprocessing_result.cves
             source.status = "ready"
             source.processed_at = utc_now()
             source.error_message = None
-        except ValueError as exc:
+        except Exception as exc:
             source.status = "failed"
             source.error_message = str(exc)
         finally:

@@ -9,6 +9,7 @@ from app.clients.exa_client import (
     ExaClientError,
     get_exa_client,
 )
+from app.services.text_service import normalize_text
 
 
 class InvalidUrlError(Exception):
@@ -31,11 +32,6 @@ class UrlIngestionConfigurationError(Exception):
 class UrlIngestionResult:
     raw_content: str
     clean_content: str
-
-
-def normalize_text(content: str) -> str:
-    normalized = content.replace("\r\n", "\n").replace("\r", "\n").strip()
-    return normalized
 
 
 def validate_public_url(url: str) -> str:

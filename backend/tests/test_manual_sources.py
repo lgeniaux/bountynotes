@@ -3,11 +3,12 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 from sqlmodel import SQLModel, Session, create_engine
 
+import app.services.source_service as source_service
 from app.db.session import get_session
 from app.main import app
 
 
-def test_manual_source_flow(tmp_path: Path) -> None:
+def test_manual_source_flow(tmp_path: Path, monkeypatch) -> None:
     database_path = tmp_path / "test.db"
     engine = create_engine(
         f"sqlite:///{database_path}",
@@ -19,7 +20,20 @@ def test_manual_source_flow(tmp_path: Path) -> None:
         with Session(engine) as session:
             yield session
 
+    class FakePreprocessingResult:
+        clean_content = "Manual test content"
+        summary = "LLM summary"
+        techs = ["FastAPI"]
+        tags = ["xss"]
+        cwes = ["CWE-79"]
+        cves = []
+
+    def fake_preprocess_source_content(content: str) -> FakePreprocessingResult:
+        assert content == "Manual test content"
+        return FakePreprocessingResult()
+
     app.dependency_overrides[get_session] = override_get_session
+    monkeypatch.setattr(source_service, "preprocess_source_content", fake_preprocess_source_content)
 
     try:
         with TestClient(app) as client:
@@ -52,11 +66,53 @@ def test_manual_source_flow(tmp_path: Path) -> None:
             assert detail_response.status_code == 200
             assert detail_response.json()["raw_content"] == "Manual test content"
             assert detail_response.json()["clean_content"] == "Manual test content"
+            assert detail_response.json()["summary"] == "LLM summary"
+            assert detail_response.json()["techs"] == ["FastAPI"]
+            assert detail_response.json()["tags"] == ["xss"]
+            assert detail_response.json()["cwes"] == ["CWE-79"]
+            assert detail_response.json()["cves"] == []
             assert detail_response.json()["status"] == "ready"
             assert detail_response.json()["processed_at"] is not None
 
             missing_response = client.get("/sources/999999")
             assert missing_response.status_code == 404
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_manual_source_processing_marks_source_failed_when_llm_config_is_missing(
+    tmp_path: Path,
+) -> None:
+    database_path = tmp_path / "test.db"
+    engine = create_engine(
+        f"sqlite:///{database_path}",
+        connect_args={"check_same_thread": False},
+    )
+    SQLModel.metadata.create_all(engine)
+
+    def override_get_session() -> Session:
+        with Session(engine) as session:
+            yield session
+
+    app.dependency_overrides[get_session] = override_get_session
+
+    try:
+        with TestClient(app) as client:
+            create_response = client.post(
+                "/sources/manual",
+                json={
+                    "title": "Strict llm source",
+                    "raw_content": "XSS write-up for CWE-79 linked to CVE-2024-12345.",
+                },
+            )
+
+            assert create_response.status_code == 201
+            created_source = create_response.json()
+
+            detail_response = client.get(f"/sources/{created_source['id']}")
+            assert detail_response.status_code == 200
+            assert detail_response.json()["status"] == "failed"
+            assert detail_response.json()["error_message"] == "DEEPSEEK_API_KEY is not configured"
     finally:
         app.dependency_overrides.clear()
 
