@@ -43,22 +43,29 @@ class QdrantSearchFilters:
 
 
 class QdrantVectorStoreClient:
-    def __init__(self, url: str, collection_name: str, vector_size: int) -> None:
+    def __init__(
+        self,
+        url: str | None,
+        collection_name: str | None,
+        vector_size: int | None,
+    ) -> None:
         self._url = url
         self._collection_name = collection_name
         self._vector_size = vector_size
 
     def ensure_collection(self) -> None:
         client = self._build_client()
+        collection_name = self._get_collection_name()
+        vector_size = self._get_vector_size()
 
         try:
             collections = client.get_collections().collections
-            if any(collection.name == self._collection_name for collection in collections):
+            if any(collection.name == collection_name for collection in collections):
                 return
 
             client.create_collection(
-                collection_name=self._collection_name,
-                vectors_config=VectorParams(size=self._vector_size, distance=Distance.COSINE),
+                collection_name=collection_name,
+                vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE),
             )
         except Exception as exc:
             raise QdrantUpstreamError("Qdrant collection setup failed") from exc
@@ -68,10 +75,11 @@ class QdrantVectorStoreClient:
             return
 
         client = self._build_client()
+        collection_name = self._get_collection_name()
 
         try:
             client.upsert(
-                collection_name=self._collection_name,
+                collection_name=collection_name,
                 points=[
                     PointStruct(id=point.point_id, vector=point.vector, payload=point.payload)
                     for point in points
@@ -87,10 +95,11 @@ class QdrantVectorStoreClient:
         limit: int = 5,
     ) -> list[Any]:
         client = self._build_client()
+        collection_name = self._get_collection_name()
 
         try:
             return client.search(
-                collection_name=self._collection_name,
+                collection_name=collection_name,
                 query_vector=query_vector,
                 query_filter=self._build_filter(filters),
                 limit=limit,
@@ -104,6 +113,18 @@ class QdrantVectorStoreClient:
             raise QdrantClientNotConfiguredError("QDRANT_URL is not configured")
 
         return QdrantClient(url=self._url)
+
+    def _get_collection_name(self) -> str:
+        if not self._collection_name:
+            raise QdrantClientNotConfiguredError("QDRANT_COLLECTION_NAME is not configured")
+
+        return self._collection_name
+
+    def _get_vector_size(self) -> int:
+        if self._vector_size is None:
+            raise QdrantClientNotConfiguredError("QDRANT_VECTOR_SIZE is not configured")
+
+        return self._vector_size
 
     def _build_filter(self, filters: QdrantSearchFilters | None) -> Filter | None:
         if filters is None:

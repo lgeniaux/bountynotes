@@ -16,7 +16,7 @@ class DeepSeekUpstreamError(DeepSeekClientError):
 
 
 class DeepSeekClient:
-    def __init__(self, api_key: str, base_url: str, model: str) -> None:
+    def __init__(self, api_key: str, base_url: str | None, model: str | None) -> None:
         self._api_key = api_key
         self._base_url = base_url
         self._model = model
@@ -24,6 +24,10 @@ class DeepSeekClient:
     def complete_text(self, system_prompt: str, user_prompt: str) -> str:
         if not self._api_key:
             raise DeepSeekClientNotConfiguredError("DEEPSEEK_API_KEY is not configured")
+        if not self._base_url:
+            raise DeepSeekClientNotConfiguredError("DEEPSEEK_BASE_URL is not configured")
+        if not self._model:
+            raise DeepSeekClientNotConfiguredError("DEEPSEEK_METADATA_MODEL is not configured")
 
         client = OpenAI(api_key=self._api_key, base_url=self._base_url)
 
