@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlmodel import Session
 
 from app.db.session import get_session
@@ -8,6 +8,7 @@ from app.services.source_service import (
     create_url_source,
     get_source_by_id,
     list_sources,
+    process_source,
 )
 from app.services.url_ingestion_service import (
     ForbiddenUrlError,
@@ -19,18 +20,32 @@ from app.services.url_ingestion_service import (
 router = APIRouter(prefix="/sources", tags=["sources"])
 
 
+def schedule_source_processing(background_tasks: BackgroundTasks, source_id: int | None) -> None:
+    if source_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Source was created without an id",
+        )
+
+    scheduled_source_id = source_id
+    background_tasks.add_task(process_source, scheduled_source_id)
+
+
 @router.post("/manual", response_model=SourceRead, status_code=status.HTTP_201_CREATED)
 def create_manual_source_endpoint(
     payload: SourceManualCreate,
+    background_tasks: BackgroundTasks,
     session: Session = Depends(get_session),
 ) -> SourceRead:
     source = create_manual_source(session, payload)
+    schedule_source_processing(background_tasks, source.id)
     return SourceRead.model_validate(source)
 
 
 @router.post("/url", response_model=SourceRead, status_code=status.HTTP_201_CREATED)
 def create_url_source_endpoint(
     payload: SourceUrlCreate,
+    background_tasks: BackgroundTasks,
     session: Session = Depends(get_session),
 ) -> SourceRead:
     try:
@@ -48,6 +63,7 @@ def create_url_source_endpoint(
     except UrlContentFetchError as exc:
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
 
+    schedule_source_processing(background_tasks, source.id)
     return SourceRead.model_validate(source)
 
 

@@ -60,12 +60,15 @@ def test_url_source_flow(tmp_path: Path, monkeypatch) -> None:
             assert len(listed_sources) == 1
             assert listed_sources[0]["id"] == created_source["id"]
             assert listed_sources[0]["source_type"] == "url"
-            assert listed_sources[0]["status"] == "pending"
+            assert listed_sources[0]["status"] == "ready"
+            assert listed_sources[0]["processed_at"] is not None
 
             detail_response = client.get(f"/sources/{created_source['id']}")
             assert detail_response.status_code == 200
             assert detail_response.json()["raw_content"] == "Fetched article text"
-            assert detail_response.json()["processed_at"] is None
+            assert detail_response.json()["clean_content"] == "Fetched article text"
+            assert detail_response.json()["status"] == "ready"
+            assert detail_response.json()["processed_at"] is not None
     finally:
         app.dependency_overrides.clear()
 
