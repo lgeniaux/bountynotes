@@ -20,6 +20,8 @@ class SourceListItem(BaseModel):
     title: str | None
     source_type: str
     status: str
+    error_message: str | None
+    processed_at: datetime | None
     created_at: datetime
     updated_at: datetime
 
@@ -34,5 +36,7 @@ class SourceRead(BaseModel):
     raw_content: str
     clean_content: str | None
     summary: str | None
+    error_message: str | None
+    processed_at: datetime | None
     created_at: datetime
     updated_at: datetime

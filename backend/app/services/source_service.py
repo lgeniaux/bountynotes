@@ -8,6 +8,7 @@ from app.services.url_ingestion_service import ingest_url_content
 def create_manual_source(session: Session, payload: SourceManualCreate) -> Source:
     source = Source(
         title=payload.title,
+        status="pending",
         raw_content=payload.raw_content,
     )
 
@@ -23,6 +24,7 @@ def create_url_source(session: Session, payload: SourceUrlCreate) -> Source:
     source = Source(
         title=payload.title or payload.url,
         source_type="url",
+        status="pending",
         raw_content=content.raw_content,
         clean_content=content.clean_content,
     )

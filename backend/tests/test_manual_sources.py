@@ -35,17 +35,23 @@ def test_manual_source_flow(tmp_path: Path) -> None:
             created_source = create_response.json()
             assert created_source["title"] == "Test source"
             assert created_source["source_type"] == "manual"
-            assert created_source["status"] == "draft"
+            assert created_source["status"] == "pending"
+            assert created_source["error_message"] is None
+            assert created_source["processed_at"] is None
 
             list_response = client.get("/sources")
             assert list_response.status_code == 200
             listed_sources = list_response.json()
             assert len(listed_sources) == 1
             assert listed_sources[0]["id"] == created_source["id"]
+            assert listed_sources[0]["status"] == "pending"
+            assert listed_sources[0]["error_message"] is None
+            assert listed_sources[0]["processed_at"] is None
 
             detail_response = client.get(f"/sources/{created_source['id']}")
             assert detail_response.status_code == 200
             assert detail_response.json()["raw_content"] == "Manual test content"
+            assert detail_response.json()["status"] == "pending"
 
             missing_response = client.get("/sources/999999")
             assert missing_response.status_code == 404
