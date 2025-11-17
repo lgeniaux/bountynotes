@@ -4,6 +4,7 @@ from app.db.session import engine
 from app.models.source import Source
 from app.models.source import utc_now
 from app.schemas.source import SourceManualCreate, SourceUrlCreate
+from app.services.indexing_service import index_source_chunks
 from app.services.preprocessing_service import preprocess_source_content
 from app.services.url_ingestion_service import ingest_url_content
 
@@ -63,6 +64,7 @@ def process_source(source_id: int) -> None:
             source.tags = preprocessing_result.tags
             source.cwes = preprocessing_result.cwes
             source.cves = preprocessing_result.cves
+            index_source_chunks(source, preprocessing_result.chunks)
             source.status = "ready"
             source.processed_at = utc_now()
             source.error_message = None
