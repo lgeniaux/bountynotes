@@ -145,6 +145,7 @@ class QdrantVectorStoreClient:
         if not conditions:
             return None
 
+        # Keep all filters in `must` so retrieval semantics stay predictable for the frontend.
         return Filter(must=conditions)
 
 

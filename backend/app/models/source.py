@@ -17,6 +17,7 @@ class Source(SQLModel, table=True):
     raw_content: str
     clean_content: Optional[str] = None
     summary: Optional[str] = None
+    # Store metadata as JSON arrays so SQLite can keep the MVP schema flat while Qdrant filters stay explicit.
     techs: list[str] = Field(default_factory=list, sa_column=Column(JSON, nullable=False))
     tags: list[str] = Field(default_factory=list, sa_column=Column(JSON, nullable=False))
     cwes: list[str] = Field(default_factory=list, sa_column=Column(JSON, nullable=False))

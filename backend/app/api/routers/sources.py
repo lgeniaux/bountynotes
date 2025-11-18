@@ -27,6 +27,7 @@ def schedule_source_processing(background_tasks: BackgroundTasks, source_id: int
             detail="Source was created without an id",
         )
 
+    # Pass only the id so the background task can open its own session after the request lifecycle ends.
     scheduled_source_id = source_id
     background_tasks.add_task(process_source, scheduled_source_id)
 

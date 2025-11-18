@@ -64,6 +64,7 @@ def process_source(source_id: int) -> None:
             source.tags = preprocessing_result.tags
             source.cwes = preprocessing_result.cwes
             source.cves = preprocessing_result.cves
+            # Keep indexing in the same lifecycle step so `ready` always means retrievable.
             index_source_chunks(source, preprocessing_result.chunks)
             source.status = "ready"
             source.processed_at = utc_now()

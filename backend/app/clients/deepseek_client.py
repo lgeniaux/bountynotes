@@ -50,6 +50,7 @@ class DeepSeekClient:
 
 
 def get_deepseek_metadata_client() -> DeepSeekClient:
+    # Metadata extraction and final answer generation can evolve at different speeds, so keep model selection separate.
     return DeepSeekClient(
         api_key=settings.deepseek_api_key,
         base_url=settings.deepseek_base_url,

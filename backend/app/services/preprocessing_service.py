@@ -31,6 +31,7 @@ def preprocess_source_content(
     metadata: SourceMetadata = extract_source_metadata(
         clean_content, deepseek_client=deepseek_client
     )
+    # Chunk after metadata extraction so the LLM sees the broadest context we have for V1.
     chunks = chunk_text(clean_content)
     if not chunks:
         raise ValueError("Source content produced no chunks")

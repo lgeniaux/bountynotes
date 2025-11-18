@@ -58,6 +58,7 @@ def ask_sources(
     )
 
     citations = [build_citation(result) for result in search_results]
+    # Skip generation when retrieval is empty so the API never invents an unsupported answer.
     answer = build_answer(query, citations, resolved_answer_client) if citations else None
     return AskResponse(answer=answer, citations=citations)
 
@@ -119,6 +120,7 @@ def build_answer_prompt(query: str, citations: list[CitationRead]) -> str:
 
     citations_text = "\n\n".join(citation_blocks)
 
+    # Keep the prompt plain text so we can inspect the exact grounding sent to the model.
     return (
         f"Question:\n{query}\n\n"
         "Citations:\n"

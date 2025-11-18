@@ -85,6 +85,7 @@ def index_source_chunks(
         for index, indexed_chunk in enumerate(indexed_chunks)
     ]
 
+    # Create-on-write keeps the MVP setup simple while the collection contract is still evolving.
     resolved_qdrant_client.ensure_collection()
     resolved_qdrant_client.upsert_points(points)
 

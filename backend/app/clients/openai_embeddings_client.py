@@ -34,6 +34,7 @@ class OpenAIEmbeddingsClient:
         if not texts:
             return []
 
+        # Batch embeddings here so chunk indexing and ask retrieval share the same call shape.
         client = OpenAI(api_key=self._api_key, base_url=self._base_url)
 
         try:
