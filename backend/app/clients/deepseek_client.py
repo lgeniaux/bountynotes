@@ -16,10 +16,17 @@ class DeepSeekUpstreamError(DeepSeekClientError):
 
 
 class DeepSeekClient:
-    def __init__(self, api_key: str, base_url: str | None, model: str | None) -> None:
+    def __init__(
+        self,
+        api_key: str,
+        base_url: str | None,
+        model: str | None,
+        model_env_name: str,
+    ) -> None:
         self._api_key = api_key
         self._base_url = base_url
         self._model = model
+        self._model_env_name = model_env_name
 
     def complete_text(self, system_prompt: str, user_prompt: str) -> str:
         if not self._api_key:
@@ -27,7 +34,7 @@ class DeepSeekClient:
         if not self._base_url:
             raise DeepSeekClientNotConfiguredError("DEEPSEEK_BASE_URL is not configured")
         if not self._model:
-            raise DeepSeekClientNotConfiguredError("DEEPSEEK_METADATA_MODEL is not configured")
+            raise DeepSeekClientNotConfiguredError(f"{self._model_env_name} is not configured")
 
         client = OpenAI(api_key=self._api_key, base_url=self._base_url)
 
@@ -55,6 +62,7 @@ def get_deepseek_metadata_client() -> DeepSeekClient:
         api_key=settings.deepseek_api_key,
         base_url=settings.deepseek_base_url,
         model=settings.deepseek_metadata_model,
+        model_env_name="DEEPSEEK_METADATA_MODEL",
     )
 
 
@@ -63,4 +71,5 @@ def get_deepseek_chat_client() -> DeepSeekClient:
         api_key=settings.deepseek_api_key,
         base_url=settings.deepseek_base_url,
         model=settings.deepseek_chat_model,
+        model_env_name="DEEPSEEK_CHAT_MODEL",
     )
