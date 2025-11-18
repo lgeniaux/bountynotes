@@ -1,4 +1,5 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from sqlalchemy.engine import Connection, Engine
 from sqlmodel import Session
 
 from app.db.session import get_session
@@ -20,16 +21,27 @@ from app.services.url_ingestion_service import (
 router = APIRouter(prefix="/sources", tags=["sources"])
 
 
-def schedule_source_processing(background_tasks: BackgroundTasks, source_id: int | None) -> None:
+def schedule_source_processing(
+    background_tasks: BackgroundTasks,
+    source_id: int | None,
+    session: Session,
+) -> None:
     if source_id is None:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Source was created without an id",
         )
 
-    # Pass only the id so the background task can open its own session after the request lifecycle ends.
+    session_bind = session.get_bind()
+    if not isinstance(session_bind, (Engine, Connection)):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Source was created without a database bind",
+        )
+
+    # Pass the request bind so background processing uses the same effective database as the API write.
     scheduled_source_id = source_id
-    background_tasks.add_task(process_source, scheduled_source_id)
+    background_tasks.add_task(process_source, scheduled_source_id, session_bind)
 
 
 @router.post("/manual", response_model=SourceRead, status_code=status.HTTP_201_CREATED)
@@ -39,7 +51,7 @@ def create_manual_source_endpoint(
     session: Session = Depends(get_session),
 ) -> SourceRead:
     source = create_manual_source(session, payload)
-    schedule_source_processing(background_tasks, source.id)
+    schedule_source_processing(background_tasks, source.id, session)
     return SourceRead.model_validate(source)
 
 
@@ -64,7 +76,7 @@ def create_url_source_endpoint(
     except UrlContentFetchError as exc:
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
 
-    schedule_source_processing(background_tasks, source.id)
+    schedule_source_processing(background_tasks, source.id, session)
     return SourceRead.model_validate(source)
 
 

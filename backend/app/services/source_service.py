@@ -1,6 +1,6 @@
+from sqlalchemy.engine import Connection, Engine
 from sqlmodel import Session, desc, select
 
-from app.db.session import engine
 from app.models.source import Source
 from app.models.source import utc_now
 from app.schemas.source import SourceManualCreate, SourceUrlCreate
@@ -40,8 +40,8 @@ def create_url_source(session: Session, payload: SourceUrlCreate) -> Source:
     return source
 
 
-def process_source(source_id: int) -> None:
-    with Session(engine) as session:
+def process_source(source_id: int, bind: Engine | Connection) -> None:
+    with Session(bind) as session:
         source = session.get(Source, source_id)
         if source is None:
             return
