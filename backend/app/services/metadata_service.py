@@ -2,7 +2,7 @@ import json
 from dataclasses import dataclass
 from typing import Protocol
 
-from app.clients.deepseek_client import DeepSeekClient, get_deepseek_client
+from app.clients.deepseek_client import DeepSeekClient, get_deepseek_metadata_client
 
 METADATA_SYSTEM_PROMPT = (
     "Extract bug bounty write-up metadata as strict JSON with keys summary, techs, tags, cwes, cves. "
@@ -27,7 +27,7 @@ def extract_source_metadata(
     text: str,
     deepseek_client: MetadataCompletionClient | None = None,
 ) -> SourceMetadata:
-    client = deepseek_client or get_deepseek_client()
+    client = deepseek_client or get_deepseek_metadata_client()
     # Fail fast here so a missing or invalid LLM configuration is visible during processing.
     return extract_llm_metadata(text, client)
 

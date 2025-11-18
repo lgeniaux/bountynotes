@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.api.routers.ask import router as ask_router
 from app.api.routers.sources import router as sources_router
 from app.core.config import settings
 
@@ -16,3 +17,4 @@ def healthcheck() -> dict[str, str]:
 
 
 router.include_router(sources_router)
+router.include_router(ask_router)

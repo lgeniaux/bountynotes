@@ -49,9 +49,17 @@ class DeepSeekClient:
         return content.strip()
 
 
-def get_deepseek_client() -> DeepSeekClient:
+def get_deepseek_metadata_client() -> DeepSeekClient:
     return DeepSeekClient(
         api_key=settings.deepseek_api_key,
         base_url=settings.deepseek_base_url,
         model=settings.deepseek_metadata_model,
+    )
+
+
+def get_deepseek_chat_client() -> DeepSeekClient:
+    return DeepSeekClient(
+        api_key=settings.deepseek_api_key,
+        base_url=settings.deepseek_base_url,
+        model=settings.deepseek_chat_model,
     )
