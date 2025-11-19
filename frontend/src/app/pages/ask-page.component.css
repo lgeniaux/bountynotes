@@ -1,0 +1,54 @@
+.ask-page {
+  gap: 20px;
+}
+
+.ask-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.ask-card {
+  align-content: start;
+}
+
+.ask-card-header {
+  display: grid;
+  gap: 6px;
+}
+
+.ask-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.ask-details div {
+  display: grid;
+  gap: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ui-border);
+}
+
+.ask-details dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ui-text-soft);
+}
+
+.ask-details dd {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--ui-text-strong);
+}
+
+@media (max-width: 900px) {
+  .ask-grid,
+  .ask-details {
+    grid-template-columns: 1fr;
+  }
+}

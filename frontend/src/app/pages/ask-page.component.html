@@ -1,0 +1,80 @@
+<section class="page-layout ask-page">
+  <header class="page-header ask-page-header">
+    <p class="page-kicker">Ask</p>
+    <h2 class="page-title">Question and citation workspace</h2>
+  </header>
+
+  <p class="page-intro">
+    This page will host the ask flow once the backend endpoint is ready. The frontend structure is
+    prepared so the next step can add the form, request state, answer, and citations without
+    reshaping the page again.
+  </p>
+
+  <app-page-state-card
+    title="Ask endpoint not wired yet"
+    message="The page layout is ready, but POST /ask is still expected from the backend workstream."
+  />
+
+  <section class="ask-grid" aria-label="Ask page preview">
+    <article class="ui-card ask-card">
+      <div class="ask-card-header">
+        <p class="ui-kicker">Request</p>
+        <h3 class="ui-card-title">Question and filters</h3>
+      </div>
+
+      <p class="ui-copy">
+        The next slice will add a query field plus simple filters for source ids, tags, and CWEs.
+      </p>
+
+      <dl class="ask-details">
+        <div>
+          <dt>Query</dt>
+          <dd>Single text input for the user question.</dd>
+        </div>
+        <div>
+          <dt>Source filters</dt>
+          <dd>Optional source selection limited to ready sources.</dd>
+        </div>
+        <div>
+          <dt>Tag filters</dt>
+          <dd>Optional comma-separated tags for the MVP.</dd>
+        </div>
+        <div>
+          <dt>CWE filters</dt>
+          <dd>Optional comma-separated CWE values for the MVP.</dd>
+        </div>
+      </dl>
+    </article>
+
+    <article class="ui-card ask-card">
+      <div class="ask-card-header">
+        <p class="ui-kicker">Response</p>
+        <h3 class="ui-card-title">Answer and citations</h3>
+      </div>
+
+      <p class="ui-copy">
+        The result area will render a final answer first, then the matched citations with title,
+        snippet, and score.
+      </p>
+
+      <dl class="ask-details">
+        <div>
+          <dt>Answer</dt>
+          <dd>Main response body from the backend.</dd>
+        </div>
+        <div>
+          <dt>Citations</dt>
+          <dd>Matched chunks linked to their source ids.</dd>
+        </div>
+        <div>
+          <dt>Loading state</dt>
+          <dd>Simple in-page feedback while the request is running.</dd>
+        </div>
+        <div>
+          <dt>Error state</dt>
+          <dd>Single message block when the request fails.</dd>
+        </div>
+      </dl>
+    </article>
+  </section>
+</section>
