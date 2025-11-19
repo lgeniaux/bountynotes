@@ -62,6 +62,23 @@
         status <strong>{{ createdManualSource.status }}</strong
         >.
       </p>
+      @if (
+        createdManualSource.status === 'pending' || createdManualSource.status === 'processing'
+      ) {
+        <p class="ui-copy">
+          Processing is still running. The source will become usable in Ask once it reaches
+          <strong>ready</strong>.
+        </p>
+      } @else if (createdManualSource.status === 'ready') {
+        <p class="ui-copy">This source is already ready to be used in Ask.</p>
+      } @else if (createdManualSource.status === 'failed') {
+        <p class="ui-copy">
+          Processing failed.
+          @if (createdManualSource.error_message) {
+            {{ createdManualSource.error_message }}
+          }
+        </p>
+      }
       <a routerLink="/sources" class="feedback-link ui-link-button">Go to Sources</a>
     </section>
   }
@@ -131,6 +148,21 @@
         <strong>{{ createdUrlSource.status }}</strong
         >.
       </p>
+      @if (createdUrlSource.status === 'pending' || createdUrlSource.status === 'processing') {
+        <p class="ui-copy">
+          Processing is still running. The source will become usable in Ask once it reaches
+          <strong>ready</strong>.
+        </p>
+      } @else if (createdUrlSource.status === 'ready') {
+        <p class="ui-copy">This source is already ready to be used in Ask.</p>
+      } @else if (createdUrlSource.status === 'failed') {
+        <p class="ui-copy">
+          Processing failed.
+          @if (createdUrlSource.error_message) {
+            {{ createdUrlSource.error_message }}
+          }
+        </p>
+      }
       <a routerLink="/sources" class="feedback-link ui-link-button">Go to Sources</a>
     </section>
   }
