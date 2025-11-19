@@ -1,6 +1,6 @@
 import { AskCitation } from './ask-citation';
 
 export interface AskResponse {
-  answer: string;
+  answer: string | null;
   citations: AskCitation[];
 }

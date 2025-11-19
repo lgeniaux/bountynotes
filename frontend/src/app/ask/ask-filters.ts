@@ -1,5 +1,6 @@
 export interface AskFilters {
-  source_ids: number[];
+  source_id: number | null;
   tags: string[];
   cwes: string[];
+  cves: string[];
 }

@@ -30,7 +30,8 @@ export class AskPageComponent {
     query: this.formBuilder.control('', [Validators.required]),
     tags_text: this.formBuilder.control(''),
     cwes_text: this.formBuilder.control(''),
-    source_ids: this.formBuilder.control<number[]>([]),
+    cves_text: this.formBuilder.control(''),
+    source_id: this.formBuilder.control<number | null>(null),
   });
 
   protected isSubmitting = false;
@@ -78,11 +79,7 @@ export class AskPageComponent {
     this.askApi
       .ask({
         query,
-        filters: {
-          source_ids: this.askForm.controls.source_ids.value ?? [],
-          tags: this.parseFilterList(this.askForm.controls.tags_text.value),
-          cwes: this.parseFilterList(this.askForm.controls.cwes_text.value),
-        },
+        filters: this.buildFilters(),
       })
       .subscribe({
         next: (response) => {
@@ -97,7 +94,7 @@ export class AskPageComponent {
   }
 
   protected hasControlError(
-    controlName: 'query' | 'tags_text' | 'cwes_text',
+    controlName: 'query' | 'tags_text' | 'cwes_text' | 'cves_text',
     errorCode: string,
   ): boolean {
     const control = this.askForm.controls[controlName];
@@ -105,22 +102,38 @@ export class AskPageComponent {
   }
 
   protected isSourceSelected(sourceId: number): boolean {
-    return (this.askForm.controls.source_ids.value ?? []).includes(sourceId);
+    return this.askForm.controls.source_id.value === sourceId;
   }
 
   protected toggleSourceSelection(sourceId: number, isSelected: boolean): void {
-    const currentIds = this.askForm.controls.source_ids.value ?? [];
-
     if (isSelected) {
-      if (currentIds.includes(sourceId)) {
-        return;
-      }
-
-      this.askForm.controls.source_ids.setValue([...currentIds, sourceId]);
+      this.askForm.controls.source_id.setValue(sourceId);
       return;
     }
 
-    this.askForm.controls.source_ids.setValue(currentIds.filter((id) => id !== sourceId));
+    if (this.askForm.controls.source_id.value === sourceId) {
+      this.askForm.controls.source_id.setValue(null);
+    }
+  }
+
+  private buildFilters() {
+    const filters = {
+      source_id: this.askForm.controls.source_id.value,
+      tags: this.parseFilterList(this.askForm.controls.tags_text.value),
+      cwes: this.parseFilterList(this.askForm.controls.cwes_text.value),
+      cves: this.parseFilterList(this.askForm.controls.cves_text.value),
+    };
+
+    if (
+      !filters.source_id &&
+      filters.tags.length === 0 &&
+      filters.cwes.length === 0 &&
+      filters.cves.length === 0
+    ) {
+      return null;
+    }
+
+    return filters;
   }
 
   private parseFilterList(value: string | null | undefined): string[] {

@@ -10,6 +10,10 @@ export interface SourceRead {
   raw_content: string;
   clean_content: string | null;
   summary: string | null;
+  techs: string[];
+  tags: string[];
+  cwes: string[];
+  cves: string[];
   created_at: string;
   updated_at: string;
 }

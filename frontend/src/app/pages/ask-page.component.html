@@ -5,8 +5,8 @@
   </header>
 
   <p class="page-intro">
-    Ask a question against the current source set. The request uses the temporary frontend mock for
-    now, but the page already follows the final query and filter shape.
+    Ask a question against the current source set. The request now calls the backend ask endpoint
+    and renders grounded citations.
   </p>
 
   <section class="ask-grid" aria-label="Ask workspace">
@@ -56,7 +56,7 @@
             } @else if (sourceState.sources.length === 0) {
               <app-page-state-card
                 title="No ready sources yet"
-                message="Ask can still run with the mock, but source filtering stays empty until processing finishes."
+                message="Ask can still run without a source filter, but source selection stays empty until processing finishes."
               />
             } @else {
               <div class="source-options">
@@ -103,12 +103,21 @@
             />
             <span class="ui-copy ask-field-hint">Comma-separated values for the MVP.</span>
           </label>
+
+          <label class="ui-field">
+            <span class="ui-field-label">CVEs</span>
+            <input
+              class="ui-field-input"
+              type="text"
+              formControlName="cves_text"
+              placeholder="CVE-2024-12345"
+            />
+            <span class="ui-copy ask-field-hint">Comma-separated values for the MVP.</span>
+          </label>
         </div>
 
         <div class="ask-actions">
-          <p class="ui-copy">
-            The current response is served by the temporary frontend mock service.
-          </p>
+          <p class="ui-copy">The current response is retrieved from the backend ask flow.</p>
           <button class="ui-button" type="submit" [disabled]="isSubmitting">
             {{ isSubmitting ? 'Asking...' : 'Ask question' }}
           </button>
@@ -125,7 +134,7 @@
       @if (isSubmitting) {
         <app-page-state-card
           title="Generating answer"
-          message="The mock ask service is preparing the response and citation list."
+          message="The backend ask flow is preparing the response and citation list."
         />
       } @else if (askErrorMessage) {
         <app-page-state-card title="Ask request failed" [message]="askErrorMessage" tone="error" />
@@ -133,7 +142,9 @@
         <section class="answer-section">
           <div class="answer-block">
             <p class="ui-kicker">Answer</p>
-            <p class="answer-copy">{{ response.answer }}</p>
+            <p class="answer-copy">
+              {{ response.answer || 'No grounded answer was produced for this query.' }}
+            </p>
           </div>
 
           <div class="citation-section">
@@ -152,7 +163,7 @@
                 <article class="citation-card">
                   <div class="citation-header">
                     <div>
-                      <h4 class="citation-title">{{ citation.title }}</h4>
+                      <h4 class="citation-title">{{ citation.title || 'Untitled source' }}</h4>
                       <p class="citation-meta">
                         Source #{{ citation.source_id }} - Chunk {{ citation.chunk_id }}
                       </p>

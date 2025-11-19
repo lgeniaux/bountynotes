@@ -1,24 +1,19 @@
-import { Injectable } from '@angular/core';
-import { Observable, delay, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 
+import { API_BASE_URL } from '../core/api-base-url';
 import { AskRequest } from './ask-request';
 import { AskResponse } from './ask-response';
-import { MOCK_ASK_RESPONSE } from './mock-ask-response';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AskApiService {
-  ask(payload: AskRequest): Observable<AskResponse> {
-    const query = payload.query.trim();
-    const answer = query
-      ? `Temporary mock answer for "${query}". ${MOCK_ASK_RESPONSE.answer}`
-      : MOCK_ASK_RESPONSE.answer;
+  private readonly http = inject(HttpClient);
+  private readonly apiBaseUrl = inject(API_BASE_URL);
 
-    return of({
-      ...MOCK_ASK_RESPONSE,
-      answer,
-      citations: [...MOCK_ASK_RESPONSE.citations],
-    }).pipe(delay(250));
+  ask(payload: AskRequest): Observable<AskResponse> {
+    return this.http.post<AskResponse>(`${this.apiBaseUrl}/ask`, payload);
   }
 }
