@@ -5,45 +5,115 @@
   </header>
 
   <p class="page-intro">
-    This page will host the ask flow once the backend endpoint is ready. The frontend structure is
-    prepared so the next step can add the form, request state, answer, and citations without
-    reshaping the page again.
+    Ask a question against the current source set. The request uses the temporary frontend mock for
+    now, but the page already follows the final query and filter shape.
   </p>
 
-  <app-page-state-card
-    title="Ask endpoint not wired yet"
-    message="The page layout is ready, but POST /ask is still expected from the backend workstream."
-  />
-
-  <section class="ask-grid" aria-label="Ask page preview">
+  <section class="ask-grid" aria-label="Ask workspace">
     <article class="ui-card ask-card">
       <div class="ask-card-header">
         <p class="ui-kicker">Request</p>
         <h3 class="ui-card-title">Question and filters</h3>
       </div>
 
-      <p class="ui-copy">
-        The next slice will add a query field plus simple filters for source ids, tags, and CWEs.
-      </p>
+      <p class="ui-copy">Only sources already marked as <strong>ready</strong> are selectable.</p>
 
-      <dl class="ask-details">
-        <div>
-          <dt>Query</dt>
-          <dd>Single text input for the user question.</dd>
+      <form class="ask-form" [formGroup]="askForm" (ngSubmit)="submitAsk()">
+        <label class="ui-field">
+          <span class="ui-field-label">Question</span>
+          <textarea
+            class="ui-field-textarea ask-query"
+            formControlName="query"
+            rows="5"
+            placeholder="How does this target become vulnerable?"
+          ></textarea>
+          @if (hasControlError('query', 'required')) {
+            <span class="ui-field-error">A question is required.</span>
+          }
+        </label>
+
+        @if (sourceState$ | async; as sourceState) {
+          <section class="source-filter-section">
+            <div class="ask-section-header">
+              <div>
+                <p class="ui-kicker">Sources</p>
+                <h4 class="ask-section-title">Ready source filter</h4>
+              </div>
+              <span class="ui-badge ui-badge-neutral">{{ sourceState.sources.length }} ready</span>
+            </div>
+
+            @if (sourceState.isLoading) {
+              <app-page-state-card
+                title="Loading ready sources"
+                message="The page is requesting the latest source list before enabling source filters."
+              />
+            } @else if (sourceState.errorMessage) {
+              <app-page-state-card
+                title="Could not load source filters"
+                [message]="sourceState.errorMessage"
+                tone="error"
+              />
+            } @else if (sourceState.sources.length === 0) {
+              <app-page-state-card
+                title="No ready sources yet"
+                message="Ask can still run with the mock, but source filtering stays empty until processing finishes."
+              />
+            } @else {
+              <div class="source-options">
+                @for (source of sourceState.sources; track source.id) {
+                  <label class="source-option">
+                    <input
+                      #sourceToggle
+                      type="checkbox"
+                      [checked]="isSourceSelected(source.id)"
+                      (change)="toggleSourceSelection(source.id, sourceToggle.checked)"
+                    />
+                    <div>
+                      <span class="source-option-title">{{
+                        source.title || 'Untitled source'
+                      }}</span>
+                      <span class="source-option-meta">Source #{{ source.id }}</span>
+                    </div>
+                  </label>
+                }
+              </div>
+            }
+          </section>
+        }
+
+        <div class="ask-filter-grid">
+          <label class="ui-field">
+            <span class="ui-field-label">Tags</span>
+            <input
+              class="ui-field-input"
+              type="text"
+              formControlName="tags_text"
+              placeholder="xss, auth-bypass"
+            />
+            <span class="ui-copy ask-field-hint">Comma-separated values for the MVP.</span>
+          </label>
+
+          <label class="ui-field">
+            <span class="ui-field-label">CWEs</span>
+            <input
+              class="ui-field-input"
+              type="text"
+              formControlName="cwes_text"
+              placeholder="CWE-79, CWE-352"
+            />
+            <span class="ui-copy ask-field-hint">Comma-separated values for the MVP.</span>
+          </label>
         </div>
-        <div>
-          <dt>Source filters</dt>
-          <dd>Optional source selection limited to ready sources.</dd>
+
+        <div class="ask-actions">
+          <p class="ui-copy">
+            The current response is served by the temporary frontend mock service.
+          </p>
+          <button class="ui-button" type="submit" [disabled]="isSubmitting">
+            {{ isSubmitting ? 'Asking...' : 'Ask question' }}
+          </button>
         </div>
-        <div>
-          <dt>Tag filters</dt>
-          <dd>Optional comma-separated tags for the MVP.</dd>
-        </div>
-        <div>
-          <dt>CWE filters</dt>
-          <dd>Optional comma-separated CWE values for the MVP.</dd>
-        </div>
-      </dl>
+      </form>
     </article>
 
     <article class="ui-card ask-card">
@@ -52,29 +122,56 @@
         <h3 class="ui-card-title">Answer and citations</h3>
       </div>
 
-      <p class="ui-copy">
-        The result area will render a final answer first, then the matched citations with title,
-        snippet, and score.
-      </p>
+      @if (isSubmitting) {
+        <app-page-state-card
+          title="Generating answer"
+          message="The mock ask service is preparing the response and citation list."
+        />
+      } @else if (askErrorMessage) {
+        <app-page-state-card title="Ask request failed" [message]="askErrorMessage" tone="error" />
+      } @else if (response) {
+        <section class="answer-section">
+          <div class="answer-block">
+            <p class="ui-kicker">Answer</p>
+            <p class="answer-copy">{{ response.answer }}</p>
+          </div>
 
-      <dl class="ask-details">
-        <div>
-          <dt>Answer</dt>
-          <dd>Main response body from the backend.</dd>
-        </div>
-        <div>
-          <dt>Citations</dt>
-          <dd>Matched chunks linked to their source ids.</dd>
-        </div>
-        <div>
-          <dt>Loading state</dt>
-          <dd>Simple in-page feedback while the request is running.</dd>
-        </div>
-        <div>
-          <dt>Error state</dt>
-          <dd>Single message block when the request fails.</dd>
-        </div>
-      </dl>
+          <div class="citation-section">
+            <div class="ask-section-header">
+              <div>
+                <p class="ui-kicker">Citations</p>
+                <h4 class="ask-section-title">Matched source chunks</h4>
+              </div>
+              <span class="ui-badge ui-badge-neutral"
+                >{{ response.citations.length }} match(es)</span
+              >
+            </div>
+
+            <div class="citation-list">
+              @for (citation of response.citations; track citation.chunk_id) {
+                <article class="citation-card">
+                  <div class="citation-header">
+                    <div>
+                      <h4 class="citation-title">{{ citation.title }}</h4>
+                      <p class="citation-meta">
+                        Source #{{ citation.source_id }} - Chunk {{ citation.chunk_id }}
+                      </p>
+                    </div>
+                    <span class="ui-badge ui-badge-neutral">Score {{ citation.score }}</span>
+                  </div>
+
+                  <p class="ui-copy">{{ citation.snippet }}</p>
+                </article>
+              }
+            </div>
+          </div>
+        </section>
+      } @else {
+        <app-page-state-card
+          title="No answer yet"
+          message="Submit a question to render the answer body and citation list here."
+        />
+      }
     </article>
   </section>
 </section>

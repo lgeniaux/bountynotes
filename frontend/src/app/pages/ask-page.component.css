@@ -17,38 +17,116 @@
   gap: 6px;
 }
 
-.ask-details {
+.ask-form,
+.answer-section,
+.citation-section {
+  display: grid;
+  gap: 18px;
+}
+
+.ask-query {
+  min-height: 132px;
+}
+
+.ask-filter-grid,
+.source-options {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  margin: 0;
 }
 
-.ask-details div {
+.source-filter-section,
+.answer-block,
+.citation-card {
   display: grid;
-  gap: 4px;
-  padding-top: 12px;
+  gap: 12px;
+  padding-top: 16px;
   border-top: 1px solid var(--ui-border);
 }
 
-.ask-details dt {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--ui-text-soft);
+.ask-section-header,
+.ask-actions,
+.citation-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.ask-details dd {
+.ask-section-title,
+.citation-title {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.3;
+  color: var(--ui-text-strong);
+}
+
+.ask-field-hint {
+  font-size: 0.9rem;
+}
+
+.source-option {
+  display: flex;
+  align-items: start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--ui-border);
+  border-radius: 8px;
+  background: var(--ui-surface-muted);
+}
+
+.source-option input {
+  margin-top: 2px;
+}
+
+.source-option div {
+  display: grid;
+  gap: 2px;
+}
+
+.source-option-title,
+.citation-meta {
+  color: var(--ui-text-strong);
+}
+
+.source-option-title {
+  font-weight: 600;
+}
+
+.source-option-meta,
+.citation-meta {
+  font-size: 0.9rem;
+}
+
+.answer-copy {
   margin: 0;
   font-size: 0.95rem;
-  line-height: 1.5;
+  line-height: 1.7;
   color: var(--ui-text-strong);
+}
+
+.citation-list {
+  display: grid;
+  gap: 12px;
 }
 
 @media (max-width: 900px) {
   .ask-grid,
-  .ask-details {
+  .ask-filter-grid,
+  .source-options {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .ask-section-header,
+  .ask-actions,
+  .citation-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ask-actions .ui-button {
+    width: 100%;
   }
 }
