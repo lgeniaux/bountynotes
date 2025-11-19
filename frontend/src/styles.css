@@ -15,6 +15,7 @@
   --ui-success-bg: #dcfce7;
   --ui-success-border: #bbf7d0;
   --ui-success-surface: #f0fdf4;
+  --ui-error-bg: #fee2e2;
   --ui-error-text: #b91c1c;
   --ui-error-border: #fecaca;
   --ui-error-surface: #fef2f2;
@@ -155,6 +156,11 @@ dd {
 .ui-badge-success {
   background: var(--ui-success-bg);
   color: var(--ui-success-text);
+}
+
+.ui-badge-error {
+  background: var(--ui-error-bg);
+  color: var(--ui-error-text);
 }
 
 .ui-badge-neutral {

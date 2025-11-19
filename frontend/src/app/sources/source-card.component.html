@@ -7,9 +7,19 @@
 
     <div class="source-badges">
       <span class="ui-badge ui-badge-accent">{{ source.source_type | titlecase }}</span>
-      <span class="ui-badge ui-badge-neutral">{{ source.status | titlecase }}</span>
+      <span
+        class="ui-badge"
+        [class.ui-badge-neutral]="source.status === 'pending'"
+        [class.ui-badge-accent]="source.status === 'processing'"
+        [class.ui-badge-success]="source.status === 'ready'"
+        [class.ui-badge-error]="source.status === 'failed'"
+      >
+        {{ statusLabels[source.status] }}
+      </span>
     </div>
   </div>
+
+  <p class="source-status-copy ui-copy">{{ getStatusDescription(source) }}</p>
 
   <dl class="source-details">
     <div>
@@ -20,5 +30,22 @@
       <dt>Updated</dt>
       <dd>{{ source.updated_at | date: 'medium' }}</dd>
     </div>
+    <div>
+      <dt>Processed</dt>
+      <dd>
+        @if (source.processed_at) {
+          {{ source.processed_at | date: 'medium' }}
+        } @else {
+          Not processed yet
+        }
+      </dd>
+    </div>
+
+    @if (source.status === 'failed' && source.error_message) {
+      <div class="source-details-wide">
+        <dt>Processing error</dt>
+        <dd>{{ source.error_message }}</dd>
+      </div>
+    }
   </dl>
 </article>
