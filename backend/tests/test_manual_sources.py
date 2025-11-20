@@ -27,13 +27,21 @@ def test_manual_source_flow(tmp_path: Path, monkeypatch) -> None:
         tags = ["xss"]
         cwes = ["CWE-79"]
         cves = []
+        chunks = []
 
     def fake_preprocess_source_content(content: str) -> FakePreprocessingResult:
         assert content == "Manual test content"
         return FakePreprocessingResult()
 
+    indexed_chunk_calls: list[tuple[int | None, int]] = []
+
+    def fake_index_source_chunks(source, chunks):
+        indexed_chunk_calls.append((source.id, len(chunks)))
+        return []
+
     app.dependency_overrides[get_session] = override_get_session
     monkeypatch.setattr(source_service, "preprocess_source_content", fake_preprocess_source_content)
+    monkeypatch.setattr(source_service, "index_source_chunks", fake_index_source_chunks)
 
     try:
         with TestClient(app) as client:
@@ -73,6 +81,7 @@ def test_manual_source_flow(tmp_path: Path, monkeypatch) -> None:
             assert detail_response.json()["cves"] == []
             assert detail_response.json()["status"] == "ready"
             assert detail_response.json()["processed_at"] is not None
+            assert indexed_chunk_calls == [(created_source["id"], 0)]
 
             missing_response = client.get("/sources/999999")
             assert missing_response.status_code == 404
@@ -80,8 +89,8 @@ def test_manual_source_flow(tmp_path: Path, monkeypatch) -> None:
         app.dependency_overrides.clear()
 
 
-def test_manual_source_processing_marks_source_failed_when_llm_config_is_missing(
-    tmp_path: Path,
+def test_manual_source_processing_marks_source_failed_when_preprocessing_raises(
+    tmp_path: Path, monkeypatch
 ) -> None:
     database_path = tmp_path / "test.db"
     engine = create_engine(
@@ -94,7 +103,11 @@ def test_manual_source_processing_marks_source_failed_when_llm_config_is_missing
         with Session(engine) as session:
             yield session
 
+    def fake_preprocess_source_content(content: str):
+        raise ValueError("DEEPSEEK_API_KEY is not configured")
+
     app.dependency_overrides[get_session] = override_get_session
+    monkeypatch.setattr(source_service, "preprocess_source_content", fake_preprocess_source_content)
 
     try:
         with TestClient(app) as client:
