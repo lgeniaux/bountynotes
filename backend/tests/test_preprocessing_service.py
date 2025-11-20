@@ -6,12 +6,19 @@ from app.services.preprocessing_service import preprocess_source_content
 class FakeDeepSeekClient:
     def __init__(self, response: str) -> None:
         self._response = response
+        self.recorded_response_format = None
 
-    def complete_text(self, system_prompt: str, user_prompt: str) -> str:
+    def complete_text(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        response_format=None,
+    ) -> str:
+        self.recorded_response_format = response_format
         return self._response
 
 
-def test_extract_source_metadata_merges_regex_and_llm_values() -> None:
+def test_extract_source_metadata_reads_plain_json_output() -> None:
     client = FakeDeepSeekClient(
         '{"summary": "Short summary", "techs": ["Angular", "FastAPI"], '
         '"tags": ["xss", "bug bounty"], "cwes": ["CWE-89"], "cves": ["CVE-2024-9999"]}'
@@ -27,6 +34,7 @@ def test_extract_source_metadata_merges_regex_and_llm_values() -> None:
     assert metadata.tags == ["xss", "bug bounty"]
     assert metadata.cwes == ["CWE-89"]
     assert metadata.cves == ["CVE-2024-9999"]
+    assert client.recorded_response_format == {"type": "json_object"}
 
 
 def test_preprocess_source_content_returns_chunks_from_llm_metadata() -> None:
@@ -59,6 +67,26 @@ def test_extract_source_metadata_raises_when_llm_returns_invalid_json() -> None:
         return
 
     raise AssertionError("Expected invalid JSON metadata to raise ValueError")
+
+
+def test_extract_source_metadata_accepts_markdown_wrapped_json() -> None:
+    client = FakeDeepSeekClient(
+        '```json\n{"summary": "Short summary", "techs": [], "tags": [], "cwes": [], "cves": []}\n```'
+    )
+
+    metadata = extract_source_metadata("text", deepseek_client=client)
+
+    assert metadata.summary == "Short summary"
+
+
+def test_extract_source_metadata_accepts_prose_around_json() -> None:
+    client = FakeDeepSeekClient(
+        'Here is the JSON you asked for:\n{"summary": "Short summary", "techs": [], "tags": [], "cwes": [], "cves": []}\nThanks!'
+    )
+
+    metadata = extract_source_metadata("text", deepseek_client=client)
+
+    assert metadata.summary == "Short summary"
 
 
 def test_chunk_text_creates_overlapping_chunks_for_long_content() -> None:

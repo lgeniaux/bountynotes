@@ -1,3 +1,5 @@
+from typing import Any
+
 from openai import OpenAI
 
 from app.core.config import settings
@@ -28,7 +30,12 @@ class DeepSeekClient:
         self._model = model
         self._model_env_name = model_env_name
 
-    def complete_text(self, system_prompt: str, user_prompt: str) -> str:
+    def complete_text(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        response_format: dict[str, Any] | None = None,
+    ) -> str:
         if not self._api_key:
             raise DeepSeekClientNotConfiguredError("DEEPSEEK_API_KEY is not configured")
         if not self._base_url:
@@ -39,13 +46,17 @@ class DeepSeekClient:
         client = OpenAI(api_key=self._api_key, base_url=self._base_url)
 
         try:
-            response = client.chat.completions.create(
-                model=self._model,
-                messages=[
+            request_payload: dict[str, Any] = {
+                "model": self._model,
+                "messages": [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt},
                 ],
-            )
+            }
+            if response_format is not None:
+                request_payload["response_format"] = response_format
+
+            response = client.chat.completions.create(**request_payload)
         except Exception as exc:
             raise DeepSeekUpstreamError("DeepSeek completion failed") from exc
 
