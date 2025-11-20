@@ -65,22 +65,9 @@ def index_source_chunks(
 
     points = [
         QdrantPoint(
-            point_id=indexed_chunk.chunk_id,
+            point_id=build_point_id(source.id, indexed_chunk.start_offset, index),
             vector=vectors[index],
-            payload={
-                "chunk_id": indexed_chunk.chunk_id,
-                "source_id": source.id,
-                "title": source.title,
-                "source_type": source.source_type,
-                "summary": source.summary,
-                "techs": source.techs,
-                "tags": source.tags,
-                "cwes": source.cwes,
-                "cves": source.cves,
-                "text": indexed_chunk.text,
-                "start_offset": indexed_chunk.start_offset,
-                "end_offset": indexed_chunk.end_offset,
-            },
+            payload=build_point_payload(source, indexed_chunk),
         )
         for index, indexed_chunk in enumerate(indexed_chunks)
     ]
@@ -94,3 +81,29 @@ def index_source_chunks(
 
 def build_chunk_id(source_id: int, chunk_index: int) -> str:
     return f"{source_id}-{chunk_index}"
+
+
+def build_point_id(source_id: int, start_offset: int, chunk_index: int) -> int:
+    return (source_id * 1_000_000) + (chunk_index * 10_000) + start_offset
+
+
+def build_point_payload(source: IndexableSource, indexed_chunk: IndexedChunk) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "chunk_id": indexed_chunk.chunk_id,
+        "source_id": source.id,
+        "source_type": source.source_type,
+        "techs": source.techs,
+        "tags": source.tags,
+        "cwes": source.cwes,
+        "cves": source.cves,
+        "text": indexed_chunk.text,
+        "start_offset": indexed_chunk.start_offset,
+        "end_offset": indexed_chunk.end_offset,
+    }
+
+    if source.title is not None:
+        payload["title"] = source.title
+    if source.summary is not None:
+        payload["summary"] = source.summary
+
+    return payload

@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 from app.clients.qdrant_client import QdrantPoint
 from app.services.chunking_service import TextChunk
-from app.services.indexing_service import build_chunk_id, index_source_chunks
+from app.services.indexing_service import build_chunk_id, build_point_id, index_source_chunks
 
 
 @dataclass
@@ -68,6 +68,7 @@ def test_index_source_chunks_builds_expected_payloads() -> None:
     assert qdrant_client.ensure_collection_calls == 1
     assert len(qdrant_client.upserted_points) == 2
     assert indexed_chunks[0].chunk_id == "7-0"
+    assert qdrant_client.upserted_points[0].point_id == build_point_id(7, 0, 0)
     assert qdrant_client.upserted_points[0].payload["source_id"] == 7
     assert qdrant_client.upserted_points[0].payload["tags"] == ["xss"]
     assert qdrant_client.upserted_points[0].payload["text"] == "chunk one"
@@ -89,3 +90,7 @@ def test_index_source_chunks_rejects_missing_source_id() -> None:
 
 def test_build_chunk_id_is_stable() -> None:
     assert build_chunk_id(12, 3) == "12-3"
+
+
+def test_build_point_id_is_stable() -> None:
+    assert build_point_id(12, 240, 3) == 12030240
