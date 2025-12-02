@@ -7,6 +7,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 
 import { API_BASE_URL } from './core/api-base-url';
+import { resolveApiBaseUrl } from './core/runtime-config';
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
@@ -17,7 +18,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     {
       provide: API_BASE_URL,
-      useValue: 'http://localhost:8000',
+      useFactory: resolveApiBaseUrl,
     },
   ],
 };

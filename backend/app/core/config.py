@@ -14,12 +14,17 @@ class Settings(BaseSettings):
     deepseek_chat_model: str | None = None
     deepseek_metadata_model: str | None = None
     openai_embedding_model: str | None = None
+    cors_allowed_origins: str = ""
     exa_max_characters: int = 20000
     deepseek_api_key: str = ""
     openai_api_key: str = ""
     exa_api_key: str = ""
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+    @property
+    def cors_allowed_origins_list(self) -> list[str]:
+        return [origin.strip() for origin in self.cors_allowed_origins.split(",") if origin.strip()]
 
 
 settings = Settings()

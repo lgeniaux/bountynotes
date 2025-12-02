@@ -32,7 +32,7 @@ export class SourcesPageComponent {
       of({
         sources: [],
         isLoading: false,
-        errorMessage: 'Make sure the API is running on http://localhost:8000.',
+        errorMessage: 'Make sure the API is running and reachable from the web app.',
       }),
     ),
     startWith({
