@@ -130,7 +130,7 @@ def test_manual_source_processing_marks_source_failed_when_preprocessing_raises(
         app.dependency_overrides.clear()
 
 
-def test_manual_source_processing_marks_source_failed_when_content_is_empty(tmp_path: Path) -> None:
+def test_manual_source_creation_rejects_whitespace_only_raw_content(tmp_path: Path) -> None:
     database_path = tmp_path / "test.db"
     engine = create_engine(
         f"sqlite:///{database_path}",
@@ -154,17 +154,13 @@ def test_manual_source_processing_marks_source_failed_when_content_is_empty(tmp_
                 },
             )
 
-            assert create_response.status_code == 201
-            created_source = create_response.json()
-            assert created_source["status"] == "pending"
+            assert create_response.status_code == 422
+            error = create_response.json()
+            assert error["detail"][0]["loc"] == ["body", "raw_content"]
+            assert error["detail"][0]["type"] == "string_too_short"
 
-            detail_response = client.get(f"/sources/{created_source['id']}")
-            assert detail_response.status_code == 200
-            assert detail_response.json()["status"] == "failed"
-            assert (
-                detail_response.json()["error_message"]
-                == "Source content is empty after normalization"
-            )
-            assert detail_response.json()["processed_at"] is None
+            list_response = client.get("/sources")
+            assert list_response.status_code == 200
+            assert list_response.json() == []
     finally:
         app.dependency_overrides.clear()

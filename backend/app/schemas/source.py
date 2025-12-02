@@ -1,11 +1,12 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from typing import Annotated
 
 
 class SourceManualCreate(BaseModel):
     title: str | None = Field(default=None, max_length=255)
-    raw_content: str = Field(min_length=1)
+    raw_content: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 
 
 class SourceUrlCreate(BaseModel):
