@@ -1,8 +1,8 @@
 import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 
-import { SourceListItem } from './source-list-item';
-import { SourceStatus } from './source-status';
+import { SourceListItem } from '../source-list-item';
+import { SourceStatus } from '../source-status';
 
 @Component({
   selector: 'app-source-card',

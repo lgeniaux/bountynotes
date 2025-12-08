@@ -3,17 +3,19 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { catchError, map, of, startWith } from 'rxjs';
 
-import { AskApiService } from '../ask/ask-api.service';
-import { AskResponse } from '../ask/ask-response';
-import { PageStateCardComponent } from '../shared/page-state-card.component';
-import { SourceListItem } from '../sources/source-list-item';
-import { SourcesApiService } from '../sources/sources-api.service';
+import { AskApiService } from '../../ask/ask-api.service';
+import { AskResponse } from '../../ask/ask-response';
+import { PageStateCardComponent } from '../../shared/page-state-card/page-state-card.component';
+import { SourceListItem } from '../../sources/source-list-item';
+import { SourcesApiService } from '../../sources/sources-api.service';
 
 interface AskPageSourceState {
   sources: SourceListItem[];
   isLoading: boolean;
   errorMessage: string | null;
 }
+
+type AskFilterPanel = 'source' | 'tags' | 'cwes' | 'cves' | null;
 
 @Component({
   selector: 'app-ask-page',
@@ -37,6 +39,7 @@ export class AskPageComponent {
   protected isSubmitting = false;
   protected askErrorMessage: string | null = null;
   protected response: AskResponse | null = null;
+  protected activeFilterPanel: AskFilterPanel = null;
 
   protected readonly sourceState$ = this.sourcesApi.listSources().pipe(
     map((sources) => ({
@@ -75,6 +78,7 @@ export class AskPageComponent {
     this.isSubmitting = true;
     this.askErrorMessage = null;
     this.response = null;
+    this.activeFilterPanel = null;
 
     this.askApi
       .ask({
@@ -99,6 +103,65 @@ export class AskPageComponent {
   ): boolean {
     const control = this.askForm.controls[controlName];
     return !!control.errors?.[errorCode] && (control.touched || control.dirty);
+  }
+
+  protected toggleFilterPanel(panel: Exclude<AskFilterPanel, null>): void {
+    this.activeFilterPanel = this.activeFilterPanel === panel ? null : panel;
+  }
+
+  protected get currentQuery(): string {
+    return this.askForm.controls.query.value?.trim() ?? '';
+  }
+
+  protected get tagsCount(): number {
+    return this.parseFilterList(this.askForm.controls.tags_text.value).length;
+  }
+
+  protected get cwesCount(): number {
+    return this.parseFilterList(this.askForm.controls.cwes_text.value).length;
+  }
+
+  protected get cvesCount(): number {
+    return this.parseFilterList(this.askForm.controls.cves_text.value).length;
+  }
+
+  protected getFilterLabel(
+    panel: Exclude<AskFilterPanel, null>,
+    sourceState: AskPageSourceState,
+  ): string {
+    if (panel === 'source') {
+      const sourceId = this.askForm.controls.source_id.value;
+
+      if (!sourceId) {
+        return 'Source';
+      }
+
+      const selectedSource = sourceState.sources.find((source) => source.id === sourceId);
+      return selectedSource?.title?.trim() || `Source #${sourceId}`;
+    }
+
+    const countByPanel = {
+      tags: this.tagsCount,
+      cwes: this.cwesCount,
+      cves: this.cvesCount,
+    };
+
+    const labelByPanel = {
+      tags: 'Tags',
+      cwes: 'CWEs',
+      cves: 'CVEs',
+    };
+
+    const count = countByPanel[panel];
+    return count > 0 ? `${labelByPanel[panel]} (${count})` : labelByPanel[panel];
+  }
+
+  protected clearSourceFilter(): void {
+    this.askForm.controls.source_id.setValue(null);
+  }
+
+  protected clearTextFilter(controlName: 'tags_text' | 'cwes_text' | 'cves_text'): void {
+    this.askForm.controls[controlName].setValue('');
   }
 
   protected isSourceSelected(sourceId: number): boolean {

@@ -1,0 +1,232 @@
+@if (sourceState$ | async; as sourceState) {
+  <section class="page-layout ask-page">
+    <section
+      class="ask-shell"
+      [class.ask-shell-has-result]="response || isSubmitting || askErrorMessage"
+    >
+      <header
+        class="ask-hero"
+        [class.ask-hero-compact]="response || isSubmitting || askErrorMessage"
+      >
+        <h2 class="page-title">Ask your notes</h2>
+
+        @if (!(response || isSubmitting || askErrorMessage)) {
+          <p class="ask-intro">One question in, one grounded answer out.</p>
+        }
+      </header>
+
+      @if (response) {
+        <section class="answer-panel">
+          <article class="question-card">
+            <p class="ui-kicker">Question</p>
+            <p class="question-copy">{{ currentQuery }}</p>
+          </article>
+
+          <article class="answer-card ui-card">
+            <p class="ui-kicker">Answer</p>
+            <p class="answer-copy">
+              {{ response.answer || 'No grounded answer was produced for this query.' }}
+            </p>
+          </article>
+
+          <section class="citations-section">
+            <div class="citations-header">
+              <div>
+                <p class="ui-kicker">Sources</p>
+                <h3 class="ui-card-title">Citations</h3>
+              </div>
+
+              <span class="ui-badge ui-badge-neutral">{{ response.citations.length }}</span>
+            </div>
+
+            @if (response.citations.length === 0) {
+              <app-page-state-card
+                title="No citations returned"
+                message="Try a broader question or remove some filters."
+              />
+            } @else {
+              <div class="citation-list">
+                @for (citation of response.citations; track citation.chunk_id) {
+                  <article class="citation-card ui-card">
+                    <div class="citation-header">
+                      <div>
+                        <h4 class="citation-title">{{ citation.title || 'Untitled source' }}</h4>
+                        <p class="citation-meta">
+                          Source #{{ citation.source_id }} - Score {{ citation.score }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <p class="ui-copy citation-snippet">{{ citation.snippet }}</p>
+                  </article>
+                }
+              </div>
+            }
+          </section>
+        </section>
+      } @else if (isSubmitting) {
+        <app-page-state-card
+          title="Generating answer"
+          message="Searching ready sources and preparing a grounded answer."
+        />
+      } @else if (askErrorMessage) {
+        <app-page-state-card title="Ask request failed" [message]="askErrorMessage" tone="error" />
+      }
+
+      <section class="composer-panel">
+        <form class="ask-form" [formGroup]="askForm" (ngSubmit)="submitAsk()">
+          <div class="filter-chip-row">
+            <button
+              class="filter-chip"
+              type="button"
+              [class.filter-chip-active]="
+                activeFilterPanel === 'source' || !!askForm.controls.source_id.value
+              "
+              [disabled]="sourceState.isLoading"
+              (click)="toggleFilterPanel('source')"
+            >
+              {{ getFilterLabel('source', sourceState) }}
+            </button>
+            <button
+              class="filter-chip"
+              type="button"
+              [class.filter-chip-active]="activeFilterPanel === 'tags' || tagsCount > 0"
+              (click)="toggleFilterPanel('tags')"
+            >
+              {{ getFilterLabel('tags', sourceState) }}
+            </button>
+            <button
+              class="filter-chip"
+              type="button"
+              [class.filter-chip-active]="activeFilterPanel === 'cwes' || cwesCount > 0"
+              (click)="toggleFilterPanel('cwes')"
+            >
+              {{ getFilterLabel('cwes', sourceState) }}
+            </button>
+            <button
+              class="filter-chip"
+              type="button"
+              [class.filter-chip-active]="activeFilterPanel === 'cves' || cvesCount > 0"
+              (click)="toggleFilterPanel('cves')"
+            >
+              {{ getFilterLabel('cves', sourceState) }}
+            </button>
+          </div>
+
+          @if (activeFilterPanel) {
+            <section class="filter-panel">
+              @if (activeFilterPanel === 'source') {
+                @if (sourceState.isLoading) {
+                  <p class="ui-copy">Loading ready sources...</p>
+                } @else if (sourceState.errorMessage) {
+                  <p class="ui-copy">Ready source filter is unavailable right now.</p>
+                } @else {
+                  <label class="ui-field">
+                    <span class="ui-field-label">Source</span>
+                    <select class="ui-field-input" [formControl]="askForm.controls.source_id">
+                      <option [ngValue]="null">All ready sources</option>
+                      @for (source of sourceState.sources; track source.id) {
+                        <option [ngValue]="source.id">
+                          {{ source.title || 'Untitled source' }}
+                        </option>
+                      }
+                    </select>
+                  </label>
+
+                  <button class="filter-clear-button" type="button" (click)="clearSourceFilter()">
+                    Clear source
+                  </button>
+                }
+              }
+
+              @if (activeFilterPanel === 'tags') {
+                <label class="ui-field">
+                  <span class="ui-field-label">Tags</span>
+                  <input
+                    class="ui-field-input"
+                    type="text"
+                    formControlName="tags_text"
+                    placeholder="xss, auth-bypass"
+                  />
+                </label>
+
+                <button
+                  class="filter-clear-button"
+                  type="button"
+                  (click)="clearTextFilter('tags_text')"
+                >
+                  Clear tags
+                </button>
+              }
+
+              @if (activeFilterPanel === 'cwes') {
+                <label class="ui-field">
+                  <span class="ui-field-label">CWEs</span>
+                  <input
+                    class="ui-field-input"
+                    type="text"
+                    formControlName="cwes_text"
+                    placeholder="CWE-79, CWE-352"
+                  />
+                </label>
+
+                <button
+                  class="filter-clear-button"
+                  type="button"
+                  (click)="clearTextFilter('cwes_text')"
+                >
+                  Clear CWEs
+                </button>
+              }
+
+              @if (activeFilterPanel === 'cves') {
+                <label class="ui-field">
+                  <span class="ui-field-label">CVEs</span>
+                  <input
+                    class="ui-field-input"
+                    type="text"
+                    formControlName="cves_text"
+                    placeholder="CVE-2024-12345"
+                  />
+                </label>
+
+                <button
+                  class="filter-clear-button"
+                  type="button"
+                  (click)="clearTextFilter('cves_text')"
+                >
+                  Clear CVEs
+                </button>
+              }
+            </section>
+          }
+
+          <label class="ui-field ask-query-field">
+            <span class="sr-only">Question</span>
+            <textarea
+              class="ui-field-textarea ask-query"
+              formControlName="query"
+              rows="4"
+              placeholder="Ask a question about your indexed sources"
+            ></textarea>
+            @if (hasControlError('query', 'required')) {
+              <span class="ui-field-error">A question is required.</span>
+            }
+          </label>
+
+          <div class="ask-actions">
+            @if (sourceState.errorMessage) {
+              <p class="ask-note ui-copy">Source filtering is temporarily unavailable.</p>
+            } @else if (sourceState.isLoading) {
+              <p class="ask-note ui-copy">Loading ready sources...</p>
+            }
+
+            <button class="ui-button ask-submit-button" type="submit" [disabled]="isSubmitting">
+              {{ isSubmitting ? 'Asking...' : 'Ask' }}
+            </button>
+          </div>
+        </form>
+      </section>
+    </section>
+  </section>
+}

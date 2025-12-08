@@ -3,8 +3,8 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-import { SourceRead } from '../sources/source-read';
-import { SourcesApiService } from '../sources/sources-api.service';
+import { SourceRead } from '../../sources/source-read';
+import { SourcesApiService } from '../../sources/sources-api.service';
 
 type AddMode = 'url' | 'manual';
 

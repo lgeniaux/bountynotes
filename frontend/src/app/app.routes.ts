@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
 
-import { AddPageComponent } from './pages/add-page.component';
-import { AskPageComponent } from './pages/ask-page.component';
-import { SourcesPageComponent } from './pages/sources-page.component';
+import { AddPageComponent } from './pages/add-page/add-page.component';
+import { AskPageComponent } from './pages/ask-page/ask-page.component';
+import { SourcesPageComponent } from './pages/sources-page/sources-page.component';
 
 export const routes: Routes = [
   {

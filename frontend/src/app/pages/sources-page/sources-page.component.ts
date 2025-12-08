@@ -3,10 +3,10 @@ import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { catchError, map, Observable, of, startWith } from 'rxjs';
 
-import { PageStateCardComponent } from '../shared/page-state-card.component';
-import { SourceListItem } from '../sources/source-list-item';
-import { SourceCardComponent } from '../sources/source-card.component';
-import { SourcesApiService } from '../sources/sources-api.service';
+import { PageStateCardComponent } from '../../shared/page-state-card/page-state-card.component';
+import { SourceListItem } from '../../sources/source-list-item';
+import { SourceCardComponent } from '../../sources/source-card/source-card.component';
+import { SourcesApiService } from '../../sources/sources-api.service';
 
 interface SourcesPageState {
   sources: SourceListItem[];
