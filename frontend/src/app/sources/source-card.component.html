@@ -1,51 +1,36 @@
 <article class="source-card ui-card">
   <div class="source-card-header">
-    <div>
-      <p class="source-meta ui-kicker">Source #{{ source.id }}</p>
+    <div class="source-main">
       <h3 class="ui-card-title">{{ source.title?.trim() || 'Untitled source' }}</h3>
+      <p class="source-kind">{{ getSourceTypeLabel(source) }}</p>
     </div>
 
     <div class="source-badges">
-      <span class="ui-badge ui-badge-accent">{{ source.source_type | titlecase }}</span>
       <span
-        class="ui-badge"
-        [class.ui-badge-neutral]="source.status === 'pending'"
-        [class.ui-badge-accent]="source.status === 'processing'"
-        [class.ui-badge-success]="source.status === 'ready'"
-        [class.ui-badge-error]="source.status === 'failed'"
+        class="ui-badge source-status"
+        [class.source-status-pending]="source.status === 'pending'"
+        [class.source-status-processing]="source.status === 'processing'"
+        [class.source-status-ready]="source.status === 'ready'"
+        [class.source-status-failed]="source.status === 'failed'"
       >
         {{ statusLabels[source.status] }}
       </span>
     </div>
   </div>
 
-  <p class="source-status-copy ui-copy">{{ getStatusDescription(source) }}</p>
+  @if (source.status !== 'ready') {
+    <p class="source-status-copy ui-copy">{{ getStatusDescription(source) }}</p>
+  }
 
-  <dl class="source-details">
-    <div>
-      <dt>Created</dt>
-      <dd>{{ source.created_at | date: 'medium' }}</dd>
-    </div>
-    <div>
-      <dt>Updated</dt>
-      <dd>{{ source.updated_at | date: 'medium' }}</dd>
-    </div>
-    <div>
-      <dt>Processed</dt>
-      <dd>
-        @if (source.processed_at) {
-          {{ source.processed_at | date: 'medium' }}
-        } @else {
-          Not processed yet
-        }
-      </dd>
-    </div>
+  @if (source.status === 'failed' && source.error_message) {
+    <p class="source-error">{{ source.error_message }}</p>
+  }
 
-    @if (source.status === 'failed' && source.error_message) {
-      <div class="source-details-wide">
-        <dt>Processing error</dt>
-        <dd>{{ source.error_message }}</dd>
-      </div>
+  <div class="source-footer">
+    <p class="source-date">Added {{ source.created_at | date: 'd MMM y' }}</p>
+
+    @if (source.processed_at && source.status === 'ready') {
+      <p class="source-date">Ready {{ source.processed_at | date: 'd MMM y' }}</p>
     }
-  </dl>
+  </div>
 </article>

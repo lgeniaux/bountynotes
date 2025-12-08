@@ -1,9 +1,29 @@
+.sources-page {
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.sources-heading {
+  display: grid;
+  gap: 6px;
+}
+
 .sources-count {
   font-size: 0.95rem;
   color: var(--ui-text-soft);
 }
 
+.sources-add-button {
+  white-space: nowrap;
+}
+
 .sources-list {
   display: grid;
-  gap: 14px;
+  gap: 18px;
+}
+
+@media (max-width: 720px) {
+  .sources-add-button {
+    width: 100%;
+  }
 }

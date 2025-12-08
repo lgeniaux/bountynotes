@@ -1,5 +1,6 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { catchError, map, Observable, of, startWith } from 'rxjs';
 
 import { PageStateCardComponent } from '../shared/page-state-card.component';
@@ -15,7 +16,7 @@ interface SourcesPageState {
 
 @Component({
   selector: 'app-sources-page',
-  imports: [AsyncPipe, PageStateCardComponent, SourceCardComponent],
+  imports: [AsyncPipe, RouterLink, PageStateCardComponent, SourceCardComponent],
   templateUrl: './sources-page.component.html',
   styleUrl: './sources-page.component.css',
 })

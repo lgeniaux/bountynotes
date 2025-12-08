@@ -1,4 +1,4 @@
-import { DatePipe, TitleCasePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 
 import { SourceListItem } from './source-list-item';
@@ -6,7 +6,7 @@ import { SourceStatus } from './source-status';
 
 @Component({
   selector: 'app-source-card',
-  imports: [DatePipe, TitleCasePipe],
+  imports: [DatePipe],
   templateUrl: './source-card.component.html',
   styleUrl: './source-card.component.css',
 })
@@ -20,16 +20,25 @@ export class SourceCardComponent {
     failed: 'Failed',
   };
 
+  protected readonly sourceTypeLabels: Record<string, string> = {
+    manual: 'Manual note',
+    url: 'URL source',
+  };
+
   protected getStatusDescription(source: SourceListItem): string {
     switch (source.status) {
       case 'pending':
-        return 'Waiting for background processing to start.';
+        return 'Waiting for processing to start.';
       case 'processing':
-        return 'Content is being cleaned and prepared for retrieval.';
+        return 'Content is being prepared for Ask.';
       case 'ready':
-        return 'This source is ready to support answers in Ask.';
+        return 'Ready for Ask.';
       case 'failed':
-        return 'Processing failed. Review the error details before retrying.';
+        return 'Processing failed.';
     }
+  }
+
+  protected getSourceTypeLabel(source: SourceListItem): string {
+    return this.sourceTypeLabels[source.source_type] ?? source.source_type;
   }
 }
