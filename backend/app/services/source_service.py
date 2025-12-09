@@ -83,5 +83,10 @@ def list_sources(session: Session) -> list[Source]:
     return list(session.exec(statement))
 
 
+def list_ready_source_ids(session: Session) -> set[int]:
+    statement = select(Source.id).where(Source.status == "ready")
+    return {source_id for source_id in session.exec(statement) if source_id is not None}
+
+
 def get_source_by_id(session: Session, source_id: int) -> Source | None:
     return session.get(Source, source_id)

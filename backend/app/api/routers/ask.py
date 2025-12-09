@@ -7,6 +7,7 @@ from app.clients.qdrant_client import QdrantClientError
 from app.db.session import get_session
 from app.schemas.ask import AskRequest, AskResponse
 from app.services.ask_service import ask_sources
+from app.services.source_service import list_ready_source_ids
 
 router = APIRouter(prefix="/ask", tags=["ask"])
 
@@ -18,7 +19,7 @@ def ask_endpoint(payload: AskRequest, session: Session = Depends(get_session)) -
             query=payload.query,
             filters=payload.filters,
             limit=payload.limit,
-            session=session,
+            ready_source_ids=list_ready_source_ids(session),
         )
     except (DeepSeekClientError, OpenAIEmbeddingsClientError, QdrantClientError, ValueError) as exc:
         raise HTTPException(

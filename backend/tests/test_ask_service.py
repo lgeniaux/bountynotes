@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 from typing import Any
 
-from sqlmodel import Session, SQLModel, create_engine
-
-from app.models.source import Source
 from app.schemas.ask import AskFilters
 from app.services.ask_service import ask_sources, build_qdrant_filters
 
@@ -48,12 +45,6 @@ class FakeAnswerClient:
         self.recorded_system_prompt = system_prompt
         self.recorded_user_prompt = user_prompt
         return self._answer
-
-
-def make_test_session() -> Session:
-    engine = create_engine("sqlite://", connect_args={"check_same_thread": False})
-    SQLModel.metadata.create_all(engine)
-    return Session(engine)
 
 
 def test_ask_sources_returns_citations_from_qdrant_hits() -> None:
@@ -174,17 +165,13 @@ def test_ask_sources_filters_out_orphaned_qdrant_hits() -> None:
         ]
     )
 
-    with make_test_session() as session:
-        session.add(Source(id=7, title="Live source", status="ready", raw_content="x"))
-        session.commit()
-
-        response = ask_sources(
-            query="test",
-            session=session,
-            embeddings_client=embeddings_client,
-            qdrant_client=qdrant_client,
-            answer_client=answer_client,
-        )
+    response = ask_sources(
+        query="test",
+        ready_source_ids={7},
+        embeddings_client=embeddings_client,
+        qdrant_client=qdrant_client,
+        answer_client=answer_client,
+    )
 
     assert len(response.citations) == 1
     assert response.citations[0].source_id == 7
