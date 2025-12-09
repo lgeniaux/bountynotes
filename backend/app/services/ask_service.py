@@ -1,9 +1,12 @@
 from dataclasses import dataclass
 from typing import Any, Protocol
 
+from sqlmodel import Session, select
+
 from app.clients.deepseek_client import get_deepseek_chat_client
 from app.clients.openai_embeddings_client import get_openai_embeddings_client
 from app.clients.qdrant_client import QdrantSearchFilters, get_qdrant_client
+from app.models.source import Source
 from app.schemas.ask import AskFilters, AskResponse, CitationRead
 
 ANSWER_SYSTEM_PROMPT = (
@@ -39,6 +42,7 @@ def ask_sources(
     query: str,
     filters: AskFilters | None = None,
     limit: int = 5,
+    session: Session | None = None,
     embeddings_client: AskEmbeddingsClient | None = None,
     qdrant_client: AskVectorStoreClient | None = None,
     answer_client: AnswerClient | None = None,
@@ -57,6 +61,9 @@ def ask_sources(
         limit=limit,
     )
 
+    if session is not None:
+        search_results = filter_results_to_ready_sources(search_results, session)
+
     citations = [build_citation(result) for result in search_results]
     # Skip generation when retrieval is empty so the API never invents an unsupported answer.
     answer = build_answer(query, citations, resolved_answer_client) if citations else None
@@ -73,6 +80,29 @@ def build_qdrant_filters(filters: AskFilters | None) -> QdrantSearchFilters | No
         cwes=filters.cwes or None,
         cves=filters.cves or None,
     )
+
+
+def filter_results_to_ready_sources(results: list[Any], session: Session) -> list[Any]:
+    source_ids = {
+        int(payload["source_id"])
+        for result in results
+        for payload in [getattr(result, "payload", None) or {}]
+        if "source_id" in payload
+    }
+
+    if not source_ids:
+        return results
+
+    statement = select(Source).where(Source.status == "ready")
+    ready_source_ids = {
+        source.id for source in session.exec(statement) if source.id is not None and source.id in source_ids
+    }
+
+    return [
+        result
+        for result in results
+        if int((getattr(result, "payload", None) or {}).get("source_id", -1)) in ready_source_ids
+    ]
 
 
 def build_citation(result: Any) -> CitationRead:

@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from typing import Any
 
+from sqlmodel import Session, SQLModel, create_engine
+
+from app.models.source import Source
 from app.schemas.ask import AskFilters
 from app.services.ask_service import ask_sources, build_qdrant_filters
 
@@ -45,6 +48,12 @@ class FakeAnswerClient:
         self.recorded_system_prompt = system_prompt
         self.recorded_user_prompt = user_prompt
         return self._answer
+
+
+def make_test_session() -> Session:
+    engine = create_engine("sqlite://", connect_args={"check_same_thread": False})
+    SQLModel.metadata.create_all(engine)
+    return Session(engine)
 
 
 def test_ask_sources_returns_citations_from_qdrant_hits() -> None:
@@ -137,3 +146,46 @@ def test_ask_sources_skips_answer_generation_without_citations() -> None:
     assert response.answer is None
     assert response.citations == []
     assert answer_client.recorded_user_prompt is None
+
+
+def test_ask_sources_filters_out_orphaned_qdrant_hits() -> None:
+    embeddings_client = FakeEmbeddingsClient([[0.1, 0.2]])
+    answer_client = FakeAnswerClient("Grounded answer")
+    qdrant_client = FakeQdrantClient(
+        [
+            FakeSearchResult(
+                score=0.82,
+                payload={
+                    "source_id": 4,
+                    "chunk_id": "4-0",
+                    "title": "Stale source",
+                    "text": "Stale snippet",
+                },
+            ),
+            FakeSearchResult(
+                score=0.91,
+                payload={
+                    "source_id": 7,
+                    "chunk_id": "7-0",
+                    "title": "Live source",
+                    "text": "Fresh snippet",
+                },
+            ),
+        ]
+    )
+
+    with make_test_session() as session:
+        session.add(Source(id=7, title="Live source", status="ready", raw_content="x"))
+        session.commit()
+
+        response = ask_sources(
+            query="test",
+            session=session,
+            embeddings_client=embeddings_client,
+            qdrant_client=qdrant_client,
+            answer_client=answer_client,
+        )
+
+    assert len(response.citations) == 1
+    assert response.citations[0].source_id == 7
+    assert "Fresh snippet" in (answer_client.recorded_user_prompt or "")
