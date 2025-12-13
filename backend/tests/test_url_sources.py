@@ -81,6 +81,7 @@ def test_url_source_flow(tmp_path: Path, monkeypatch) -> None:
             assert len(listed_sources) == 1
             assert listed_sources[0]["id"] == created_source["id"]
             assert listed_sources[0]["source_type"] == "url"
+            # TestClient waits for background tasks, so this source is already processed here.
             assert listed_sources[0]["status"] == "ready"
             assert listed_sources[0]["processed_at"] is not None
 
@@ -194,6 +195,7 @@ def test_url_source_returns_bad_gateway_when_exa_sdk_raises_unexpected_error(
     app.dependency_overrides[get_session] = override_get_session
     monkeypatch.setattr(url_ingestion_service.socket, "getaddrinfo", fake_getaddrinfo)
     monkeypatch.setattr(exa_client_module, "Exa", FakeExa)
+    # Set the API key so this test hits the provider failure path, not config validation.
     monkeypatch.setattr(exa_client_module.settings, "exa_api_key", "test-key")
 
     try:

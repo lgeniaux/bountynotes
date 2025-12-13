@@ -144,6 +144,7 @@ def test_ask_sources_filters_out_orphaned_qdrant_hits() -> None:
     answer_client = FakeAnswerClient("Grounded answer")
     qdrant_client = FakeQdrantClient(
         [
+            # Qdrant can still have the chunk even if the source dropped out of the ready set.
             FakeSearchResult(
                 score=0.82,
                 payload={
@@ -153,6 +154,7 @@ def test_ask_sources_filters_out_orphaned_qdrant_hits() -> None:
                     "text": "Stale snippet",
                 },
             ),
+            # Only ready sources should survive this filter.
             FakeSearchResult(
                 score=0.91,
                 payload={

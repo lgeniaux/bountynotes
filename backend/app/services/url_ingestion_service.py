@@ -70,6 +70,7 @@ def ensure_public_hostname(hostname: str) -> None:
         if isinstance(host, str):
             resolved_ips.add(host)
 
+    # Check every resolved IP. One public record should not hide a private one.
     for value in resolved_ips:
         ensure_public_ip(ipaddress.ip_address(value))
 

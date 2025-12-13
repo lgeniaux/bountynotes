@@ -11,6 +11,7 @@ from app.db.session import create_db_and_tables
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    # Create tables here so a fresh local setup works right away.
     create_db_and_tables()
     yield
 

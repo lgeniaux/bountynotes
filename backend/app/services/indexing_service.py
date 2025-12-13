@@ -88,6 +88,7 @@ def build_point_id(source_id: int, start_offset: int, chunk_index: int) -> int:
 
 
 def build_point_payload(source: IndexableSource, indexed_chunk: IndexedChunk) -> dict[str, object]:
+    # Put source metadata on every chunk so Qdrant can filter on its own.
     payload: dict[str, object] = {
         "chunk_id": indexed_chunk.chunk_id,
         "source_id": source.id,

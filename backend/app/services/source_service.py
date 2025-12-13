@@ -84,6 +84,7 @@ def list_sources(session: Session) -> list[Source]:
 
 
 def list_ready_source_ids(session: Session) -> set[int]:
+    # Ask only looks at sources that are actually ready.
     statement = select(Source.id).where(Source.status == "ready")
     return {source_id for source_id in session.exec(statement) if source_id is not None}
 

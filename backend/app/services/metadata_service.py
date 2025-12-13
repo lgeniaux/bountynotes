@@ -109,6 +109,7 @@ def normalize_string_list(value: object, uppercase: bool = False) -> list[str]:
     if not isinstance(value, list):
         return []
 
+    # Drop duplicates but keep the order. It makes reprocessing less noisy.
     normalized_values: list[str] = []
     for item in value:
         if not isinstance(item, str):

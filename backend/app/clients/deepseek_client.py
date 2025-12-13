@@ -41,6 +41,7 @@ class DeepSeekClient:
         if not self._base_url:
             raise DeepSeekClientNotConfiguredError("DEEPSEEK_BASE_URL is not configured")
         if not self._model:
+            # Say which env var is missing because chat and metadata can use different models.
             raise DeepSeekClientNotConfiguredError(f"{self._model_env_name} is not configured")
 
         client = OpenAI(api_key=self._api_key, base_url=self._base_url)

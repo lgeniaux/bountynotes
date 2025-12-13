@@ -26,6 +26,7 @@ export class SourceCardComponent {
   };
 
   protected getStatusDescription(source: SourceListItem): string {
+    // Keep these messages close to the backend states so users see why Ask is not available yet.
     switch (source.status) {
       case 'pending':
         return 'Waiting for processing to start.';

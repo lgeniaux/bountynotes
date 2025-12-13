@@ -31,6 +31,7 @@ class OpenAIEmbeddingsClient:
                 "OPENAI_EMBEDDING_MODEL is not configured"
             )
 
+        # Nothing to embed, so skip the network call.
         if not texts:
             return []
 

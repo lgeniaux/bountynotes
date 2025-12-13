@@ -80,6 +80,7 @@ def build_qdrant_filters(filters: AskFilters | None) -> QdrantSearchFilters | No
 
 
 def filter_results_to_ready_sources(results: list[Any], ready_source_ids: set[int]) -> list[Any]:
+    # Qdrant can return stale chunks, so trust the DB lifecycle first.
     return [
         result
         for result in results

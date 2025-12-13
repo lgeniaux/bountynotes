@@ -40,6 +40,7 @@ class FakeQdrantClient:
 
 
 def test_index_source_chunks_builds_expected_payloads() -> None:
+    # These fakes keep the test close to the real flow without touching the network.
     source = FakeSource(
         id=7,
         title="Write-up",
@@ -78,6 +79,7 @@ def test_index_source_chunks_rejects_missing_source_id() -> None:
     source = FakeSource(id=None)
 
     try:
+        # We need a real source id here because chunk ids and point ids are built from it.
         index_source_chunks(
             source, [TextChunk(index=0, text="chunk", start_offset=0, end_offset=5)]
         )

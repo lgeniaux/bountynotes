@@ -19,6 +19,7 @@ def _ensure_sqlite_directory(database_url: str) -> None:
         return
 
     database_path = Path(database_url.removeprefix("sqlite:///"))
+    # SQLite will not create the parent folder for us on first run.
     database_path.parent.mkdir(parents=True, exist_ok=True)
 
 
@@ -35,5 +36,6 @@ def create_db_and_tables() -> None:
 
 
 def get_session() -> Generator[Session, None, None]:
+    # One session per request keeps the API path simple and predictable.
     with Session(engine) as session:
         yield session

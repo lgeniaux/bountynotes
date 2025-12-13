@@ -36,6 +36,7 @@ class QdrantPoint:
 
 @dataclass
 class QdrantSearchFilters:
+    # Keep this close to the ask filters. The API layer just maps fields.
     source_id: int | None = None
     tags: list[str] | None = None
     cwes: list[str] | None = None
@@ -63,6 +64,7 @@ class QdrantVectorStoreClient:
             if any(collection.name == collection_name for collection in collections):
                 return
 
+            # Cosine is enough here since query and chunk vectors come from the same setup.
             client.create_collection(
                 collection_name=collection_name,
                 vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE),

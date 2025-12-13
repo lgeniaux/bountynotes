@@ -22,6 +22,7 @@ class ExaUpstreamError(ExaClientError):
 class ExaClient:
     def __init__(self, api_key: str, max_characters: int) -> None:
         self._api_key = api_key
+        # Cap the fetch size here so chunking and embeddings do not blow up later.
         self._max_characters = max_characters
 
     def fetch_clean_text(self, url: str) -> str:
@@ -46,6 +47,7 @@ class ExaClient:
             raise ExaEmptyContentError("Exa returned no content")
 
         text = getattr(results[0], "text", None)
+        # Treat empty text as an upstream failure. A blank source is useless.
         if not text:
             raise ExaEmptyContentError("Exa returned empty text")
 

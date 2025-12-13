@@ -63,6 +63,7 @@ def create_url_source_endpoint(
 ) -> SourceRead:
     try:
         source = create_url_source(session, payload)
+    # Bad URLs stay 4xx. Exa fetch problems are upstream 502s.
     except InvalidUrlError as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)

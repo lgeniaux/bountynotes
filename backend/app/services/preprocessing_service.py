@@ -25,6 +25,7 @@ def preprocess_source_content(
     deepseek_client: MetadataCompletionClient | None = None,
 ) -> PreprocessingResult:
     clean_content = normalize_text(content)
+    # If cleanup leaves nothing, stop here instead of indexing garbage.
     if not clean_content:
         raise ValueError("Source content is empty after normalization")
 
