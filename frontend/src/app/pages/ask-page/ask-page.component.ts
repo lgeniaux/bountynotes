@@ -3,6 +3,7 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { catchError, map, of, startWith } from 'rxjs';
 
+import { AskAnswerPanelComponent } from '../../ask/ask-answer-panel/ask-answer-panel.component';
 import { AskApiService } from '../../ask/ask-api.service';
 import { AskResponse } from '../../ask/ask-response';
 import { PageStateCardComponent } from '../../shared/page-state-card/page-state-card.component';
@@ -19,7 +20,7 @@ type AskFilterPanel = 'source' | 'tags' | 'cwes' | 'cves' | null;
 
 @Component({
   selector: 'app-ask-page',
-  imports: [AsyncPipe, PageStateCardComponent, ReactiveFormsModule],
+  imports: [AsyncPipe, AskAnswerPanelComponent, PageStateCardComponent, ReactiveFormsModule],
   templateUrl: './ask-page.component.html',
   styleUrl: './ask-page.component.css',
 })
@@ -43,6 +44,7 @@ export class AskPageComponent {
 
   protected readonly sourceState$ = this.sourcesApi.listSources().pipe(
     map((sources) => ({
+      // Only show sources that are actually ready on the backend.
       sources: sources.filter((source) => source.status === 'ready'),
       isLoading: false,
       errorMessage: null,
@@ -187,6 +189,7 @@ export class AskPageComponent {
       cves: this.parseFilterList(this.askForm.controls.cves_text.value),
     };
 
+    // Send `null` when nothing is selected. It is clearer than an empty filter object.
     if (
       !filters.source_id &&
       filters.tags.length === 0 &&

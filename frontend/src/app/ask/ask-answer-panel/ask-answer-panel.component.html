@@ -1,0 +1,15 @@
+<section class="answer-panel">
+  <article class="question-card">
+    <p class="ui-kicker">Question</p>
+    <p class="question-copy">{{ query }}</p>
+  </article>
+
+  <article class="answer-card ui-card">
+    <p class="ui-kicker">Answer</p>
+    <p class="answer-copy">
+      {{ response.answer || 'No grounded answer was produced for this query.' }}
+    </p>
+  </article>
+
+  <app-citation-list [citations]="response.citations" />
+</section>

@@ -1,0 +1,30 @@
+.answer-panel,
+.question-card {
+  display: grid;
+  gap: 18px;
+}
+
+.question-card {
+  gap: 8px;
+}
+
+.question-copy {
+  margin: 0;
+  font-family: var(--ui-heading-font);
+  font-size: 1.35rem;
+  line-height: 1.25;
+  color: var(--ui-text-strong);
+}
+
+.answer-card {
+  display: grid;
+  gap: 14px;
+}
+
+.answer-copy {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--ui-text-strong);
+  white-space: pre-wrap;
+}

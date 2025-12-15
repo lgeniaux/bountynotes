@@ -1,0 +1,43 @@
+.citations-section,
+.citation-list {
+  display: grid;
+  gap: 18px;
+}
+
+.citations-header,
+.citation-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.citation-card {
+  display: grid;
+  gap: 14px;
+}
+
+.citation-title {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.3;
+  color: var(--ui-text-strong);
+}
+
+.citation-meta {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: var(--ui-text-soft);
+}
+
+.citation-snippet {
+  margin: 0;
+}
+
+@media (max-width: 720px) {
+  .citations-header,
+  .citation-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
