@@ -28,131 +28,29 @@
 
       <section class="composer-panel">
         <form class="ask-form" [formGroup]="askForm" (ngSubmit)="submitAsk()">
-          <div class="filter-chip-row">
-            <button
-              class="filter-chip"
-              type="button"
-              [class.filter-chip-active]="
-                activeFilterPanel === 'source' || !!askForm.controls.source_id.value
-              "
-              [disabled]="sourceState.isLoading"
-              (click)="toggleFilterPanel('source')"
-            >
-              {{ getFilterLabel('source', sourceState) }}
-            </button>
-            <button
-              class="filter-chip"
-              type="button"
-              [class.filter-chip-active]="activeFilterPanel === 'tags' || tagsCount > 0"
-              (click)="toggleFilterPanel('tags')"
-            >
-              {{ getFilterLabel('tags', sourceState) }}
-            </button>
-            <button
-              class="filter-chip"
-              type="button"
-              [class.filter-chip-active]="activeFilterPanel === 'cwes' || cwesCount > 0"
-              (click)="toggleFilterPanel('cwes')"
-            >
-              {{ getFilterLabel('cwes', sourceState) }}
-            </button>
-            <button
-              class="filter-chip"
-              type="button"
-              [class.filter-chip-active]="activeFilterPanel === 'cves' || cvesCount > 0"
-              (click)="toggleFilterPanel('cves')"
-            >
-              {{ getFilterLabel('cves', sourceState) }}
-            </button>
-          </div>
+          <app-ask-filter-bar
+            [activePanel]="activeFilterPanel"
+            [isSourceSelected]="!!askForm.controls.source_id.value"
+            [isSourceLoading]="sourceState.isLoading"
+            [sourceLabel]="getFilterLabel('source', sourceState)"
+            [tagsLabel]="getFilterLabel('tags', sourceState)"
+            [cwesLabel]="getFilterLabel('cwes', sourceState)"
+            [cvesLabel]="getFilterLabel('cves', sourceState)"
+            (panelChange)="toggleFilterPanel($event)"
+          />
 
-          @if (activeFilterPanel) {
-            <section class="filter-panel">
-              @if (activeFilterPanel === 'source') {
-                @if (sourceState.isLoading) {
-                  <p class="ui-copy">Loading ready sources...</p>
-                } @else if (sourceState.errorMessage) {
-                  <p class="ui-copy">Ready source filter is unavailable right now.</p>
-                } @else {
-                  <label class="ui-field">
-                    <span class="ui-field-label">Source</span>
-                    <select class="ui-field-input" [formControl]="askForm.controls.source_id">
-                      <option [ngValue]="null">All ready sources</option>
-                      @for (source of sourceState.sources; track source.id) {
-                        <option [ngValue]="source.id">
-                          {{ source.title || 'Untitled source' }}
-                        </option>
-                      }
-                    </select>
-                  </label>
-
-                  <button class="filter-clear-button" type="button" (click)="clearSourceFilter()">
-                    Clear source
-                  </button>
-                }
-              }
-
-              @if (activeFilterPanel === 'tags') {
-                <label class="ui-field">
-                  <span class="ui-field-label">Tags</span>
-                  <input
-                    class="ui-field-input"
-                    type="text"
-                    formControlName="tags_text"
-                    placeholder="xss, auth-bypass"
-                  />
-                </label>
-
-                <button
-                  class="filter-clear-button"
-                  type="button"
-                  (click)="clearTextFilter('tags_text')"
-                >
-                  Clear tags
-                </button>
-              }
-
-              @if (activeFilterPanel === 'cwes') {
-                <label class="ui-field">
-                  <span class="ui-field-label">CWEs</span>
-                  <input
-                    class="ui-field-input"
-                    type="text"
-                    formControlName="cwes_text"
-                    placeholder="CWE-79, CWE-352"
-                  />
-                </label>
-
-                <button
-                  class="filter-clear-button"
-                  type="button"
-                  (click)="clearTextFilter('cwes_text')"
-                >
-                  Clear CWEs
-                </button>
-              }
-
-              @if (activeFilterPanel === 'cves') {
-                <label class="ui-field">
-                  <span class="ui-field-label">CVEs</span>
-                  <input
-                    class="ui-field-input"
-                    type="text"
-                    formControlName="cves_text"
-                    placeholder="CVE-2024-12345"
-                  />
-                </label>
-
-                <button
-                  class="filter-clear-button"
-                  type="button"
-                  (click)="clearTextFilter('cves_text')"
-                >
-                  Clear CVEs
-                </button>
-              }
-            </section>
-          }
+          <app-ask-filter-panel
+            [activePanel]="activeFilterPanel"
+            [sources]="sourceState.sources"
+            [isSourceLoading]="sourceState.isLoading"
+            [sourceErrorMessage]="sourceState.errorMessage"
+            [sourceIdControl]="askForm.controls.source_id"
+            [tagsControl]="askForm.controls.tags_text"
+            [cwesControl]="askForm.controls.cwes_text"
+            [cvesControl]="askForm.controls.cves_text"
+            (clearSource)="clearSourceFilter()"
+            (clearTextFilter)="clearTextFilter($event)"
+          />
 
           <label class="ui-field ask-query-field">
             <span class="sr-only">Question</span>

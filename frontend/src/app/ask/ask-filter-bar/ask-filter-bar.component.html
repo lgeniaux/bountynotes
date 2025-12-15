@@ -1,0 +1,35 @@
+<div class="filter-chip-row">
+  <button
+    class="filter-chip"
+    type="button"
+    [class.filter-chip-active]="activePanel === 'source' || isSourceSelected"
+    [disabled]="isSourceLoading"
+    (click)="openPanel('source')"
+  >
+    {{ sourceLabel }}
+  </button>
+  <button
+    class="filter-chip"
+    type="button"
+    [class.filter-chip-active]="activePanel === 'tags'"
+    (click)="openPanel('tags')"
+  >
+    {{ tagsLabel }}
+  </button>
+  <button
+    class="filter-chip"
+    type="button"
+    [class.filter-chip-active]="activePanel === 'cwes'"
+    (click)="openPanel('cwes')"
+  >
+    {{ cwesLabel }}
+  </button>
+  <button
+    class="filter-chip"
+    type="button"
+    [class.filter-chip-active]="activePanel === 'cves'"
+    (click)="openPanel('cves')"
+  >
+    {{ cvesLabel }}
+  </button>
+</div>

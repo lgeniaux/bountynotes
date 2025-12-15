@@ -1,0 +1,20 @@
+.filter-panel {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 2px solid var(--ui-border);
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-surface-muted);
+  box-shadow: var(--ui-shadow-hard-xs);
+}
+
+.filter-clear-button {
+  justify-self: start;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--ui-text-soft);
+  cursor: pointer;
+}

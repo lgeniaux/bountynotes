@@ -5,6 +5,8 @@ import { catchError, map, of, startWith } from 'rxjs';
 
 import { AskAnswerPanelComponent } from '../../ask/ask-answer-panel/ask-answer-panel.component';
 import { AskApiService } from '../../ask/ask-api.service';
+import { AskFilterBarComponent } from '../../ask/ask-filter-bar/ask-filter-bar.component';
+import { AskFilterPanelComponent } from '../../ask/ask-filter-panel/ask-filter-panel.component';
 import { AskResponse } from '../../ask/ask-response';
 import { PageStateCardComponent } from '../../shared/page-state-card/page-state-card.component';
 import { SourceListItem } from '../../sources/source-list-item';
@@ -20,7 +22,14 @@ type AskFilterPanel = 'source' | 'tags' | 'cwes' | 'cves' | null;
 
 @Component({
   selector: 'app-ask-page',
-  imports: [AsyncPipe, AskAnswerPanelComponent, PageStateCardComponent, ReactiveFormsModule],
+  imports: [
+    AsyncPipe,
+    AskAnswerPanelComponent,
+    AskFilterBarComponent,
+    AskFilterPanelComponent,
+    PageStateCardComponent,
+    ReactiveFormsModule,
+  ],
   templateUrl: './ask-page.component.html',
   styleUrl: './ask-page.component.css',
 })
@@ -164,21 +173,6 @@ export class AskPageComponent {
 
   protected clearTextFilter(controlName: 'tags_text' | 'cwes_text' | 'cves_text'): void {
     this.askForm.controls[controlName].setValue('');
-  }
-
-  protected isSourceSelected(sourceId: number): boolean {
-    return this.askForm.controls.source_id.value === sourceId;
-  }
-
-  protected toggleSourceSelection(sourceId: number, isSelected: boolean): void {
-    if (isSelected) {
-      this.askForm.controls.source_id.setValue(sourceId);
-      return;
-    }
-
-    if (this.askForm.controls.source_id.value === sourceId) {
-      this.askForm.controls.source_id.setValue(null);
-    }
   }
 
   private buildFilters() {

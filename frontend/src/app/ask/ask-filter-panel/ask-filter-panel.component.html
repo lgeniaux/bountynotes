@@ -1,0 +1,75 @@
+@if (activePanel) {
+  <section class="filter-panel">
+    @if (activePanel === 'source') {
+      @if (isSourceLoading) {
+        <p class="ui-copy">Loading ready sources...</p>
+      } @else if (sourceErrorMessage) {
+        <p class="ui-copy">Ready source filter is unavailable right now.</p>
+      } @else {
+        <label class="ui-field">
+          <span class="ui-field-label">Source</span>
+          <select class="ui-field-input" [formControl]="sourceIdControl">
+            <option [ngValue]="null">All ready sources</option>
+            @for (source of sources; track source.id) {
+              <option [ngValue]="source.id">
+                {{ source.title || 'Untitled source' }}
+              </option>
+            }
+          </select>
+        </label>
+
+        <button class="filter-clear-button" type="button" (click)="clearSource.emit()">
+          Clear source
+        </button>
+      }
+    }
+
+    @if (activePanel === 'tags') {
+      <label class="ui-field">
+        <span class="ui-field-label">Tags</span>
+        <input
+          class="ui-field-input"
+          type="text"
+          [formControl]="tagsControl"
+          placeholder="xss, auth-bypass"
+        />
+      </label>
+
+      <button class="filter-clear-button" type="button" (click)="clearTextFilter.emit('tags_text')">
+        Clear tags
+      </button>
+    }
+
+    @if (activePanel === 'cwes') {
+      <label class="ui-field">
+        <span class="ui-field-label">CWEs</span>
+        <input
+          class="ui-field-input"
+          type="text"
+          [formControl]="cwesControl"
+          placeholder="CWE-79, CWE-352"
+        />
+      </label>
+
+      <button class="filter-clear-button" type="button" (click)="clearTextFilter.emit('cwes_text')">
+        Clear CWEs
+      </button>
+    }
+
+    @if (activePanel === 'cves') {
+      <label class="ui-field">
+        <span class="ui-field-label">CVEs</span>
+        <input
+          class="ui-field-input"
+          type="text"
+          [formControl]="cvesControl"
+          placeholder="CVE-2024-12345"
+        />
+      </label>
+
+      <button class="filter-clear-button" type="button" (click)="clearTextFilter.emit('cves_text')">
+        Clear CVEs
+      </button>
+    }
+  </section>
+}
