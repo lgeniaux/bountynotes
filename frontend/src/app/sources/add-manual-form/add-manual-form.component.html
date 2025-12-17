@@ -1,0 +1,34 @@
+<form class="source-form" [formGroup]="form" (ngSubmit)="submitted.emit()">
+  <label class="field ui-field">
+    <span class="field-label ui-field-label">Title (optional)</span>
+    <input
+      class="ui-field-input"
+      type="text"
+      formControlName="title"
+      placeholder="Optional short label"
+      maxlength="255"
+    />
+    @if (hasControlError('title', 'maxlength')) {
+      <span class="field-error ui-field-error">Title must stay under 255 characters.</span>
+    }
+  </label>
+
+  <label class="field ui-field">
+    <span class="field-label ui-field-label">Raw content</span>
+    <textarea
+      class="ui-field-textarea"
+      formControlName="raw_content"
+      rows="12"
+      placeholder="Paste the write-up content here"
+    ></textarea>
+    @if (hasControlError('raw_content', 'required')) {
+      <span class="field-error ui-field-error">Content is required.</span>
+    }
+  </label>
+
+  <div class="form-actions">
+    <button class="ui-button submit-button" type="submit" [disabled]="isSubmitting">
+      {{ submitLabel }}
+    </button>
+  </div>
+</form>

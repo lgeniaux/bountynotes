@@ -1,0 +1,29 @@
+.source-form {
+  display: grid;
+  gap: 18px;
+}
+
+.ui-field-textarea {
+  resize: vertical;
+  min-height: 220px;
+}
+
+.form-actions {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+}
+
+.submit-button {
+  min-width: 180px;
+}
+
+@media (max-width: 720px) {
+  .form-actions {
+    justify-items: stretch;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}

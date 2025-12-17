@@ -1,16 +1,23 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { FormBuilder, Validators } from '@angular/forms';
 
+import { AddMode } from './add-mode';
+import { AddManualFormComponent } from '../../sources/add-manual-form/add-manual-form.component';
+import { AddSourceModeSwitchComponent } from '../../sources/add-source-mode-switch/add-source-mode-switch.component';
+import { AddUrlFormComponent } from '../../sources/add-url-form/add-url-form.component';
 import { SourceRead } from '../../sources/source-read';
+import { SourceCreateFeedbackComponent } from '../../sources/source-create-feedback/source-create-feedback.component';
 import { SourcesApiService } from '../../sources/sources-api.service';
-
-type AddMode = 'url' | 'manual';
 
 @Component({
   selector: 'app-add-page',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [
+    AddManualFormComponent,
+    AddSourceModeSwitchComponent,
+    AddUrlFormComponent,
+    SourceCreateFeedbackComponent,
+  ],
   templateUrl: './add-page.component.html',
   styleUrl: './add-page.component.css',
 })
@@ -53,19 +60,6 @@ export class AddPageComponent {
 
   protected get submitLabel(): string {
     return this.isSubmitting ? 'Adding...' : 'Add source';
-  }
-
-  protected hasManualControlError(
-    controlName: 'title' | 'raw_content',
-    errorCode: string,
-  ): boolean {
-    const control = this.manualForm.controls[controlName];
-    return !!control.errors?.[errorCode] && (control.touched || control.dirty);
-  }
-
-  protected hasUrlControlError(controlName: 'title' | 'url', errorCode: string): boolean {
-    const control = this.urlForm.controls[controlName];
-    return !!control.errors?.[errorCode] && (control.touched || control.dirty);
   }
 
   private submitManualSource(): void {

@@ -4,134 +4,28 @@
   </header>
 
   <section class="composer-card">
-    <div class="mode-switch" aria-label="Source mode">
-      <button
-        class="mode-switch-button"
-        type="button"
-        [class.mode-switch-button-active]="selectedMode === 'url'"
-        [attr.aria-pressed]="selectedMode === 'url'"
-        [disabled]="isSubmitting"
-        (click)="selectMode('url')"
-      >
-        URL
-      </button>
-      <button
-        class="mode-switch-button"
-        type="button"
-        [class.mode-switch-button-active]="selectedMode === 'manual'"
-        [attr.aria-pressed]="selectedMode === 'manual'"
-        [disabled]="isSubmitting"
-        (click)="selectMode('manual')"
-      >
-        Manual
-      </button>
-    </div>
+    <app-add-source-mode-switch
+      [selectedMode]="selectedMode"
+      [disabled]="isSubmitting"
+      (modeChange)="selectMode($event)"
+    />
 
     @if (selectedMode === 'url') {
-      <form class="source-form" [formGroup]="urlForm" (ngSubmit)="submitSource()">
-        <label class="field ui-field">
-          <span class="field-label ui-field-label">Title (optional)</span>
-          <input
-            class="ui-field-input"
-            type="text"
-            formControlName="title"
-            placeholder="Optional short label"
-            maxlength="255"
-          />
-          @if (hasUrlControlError('title', 'maxlength')) {
-            <span class="field-error ui-field-error">Title must stay under 255 characters.</span>
-          }
-        </label>
-
-        <label class="field ui-field">
-          <span class="field-label ui-field-label">URL</span>
-          <input
-            class="ui-field-input url-input"
-            type="url"
-            formControlName="url"
-            placeholder="https://example.com/writeup"
-            maxlength="2048"
-          />
-          @if (hasUrlControlError('url', 'required')) {
-            <span class="field-error ui-field-error">URL is required.</span>
-          }
-          @if (hasUrlControlError('url', 'maxlength')) {
-            <span class="field-error ui-field-error">URL must stay under 2048 characters.</span>
-          }
-        </label>
-
-        <div class="form-actions">
-          <button class="ui-button submit-button" type="submit" [disabled]="isSubmitting">
-            {{ submitLabel }}
-          </button>
-        </div>
-      </form>
+      <app-add-url-form
+        [form]="urlForm"
+        [isSubmitting]="isSubmitting"
+        [submitLabel]="submitLabel"
+        (submitted)="submitSource()"
+      />
     } @else {
-      <form class="source-form" [formGroup]="manualForm" (ngSubmit)="submitSource()">
-        <label class="field ui-field">
-          <span class="field-label ui-field-label">Title (optional)</span>
-          <input
-            class="ui-field-input"
-            type="text"
-            formControlName="title"
-            placeholder="Optional short label"
-            maxlength="255"
-          />
-          @if (hasManualControlError('title', 'maxlength')) {
-            <span class="field-error ui-field-error">Title must stay under 255 characters.</span>
-          }
-        </label>
-
-        <label class="field ui-field">
-          <span class="field-label ui-field-label">Raw content</span>
-          <textarea
-            class="ui-field-textarea"
-            formControlName="raw_content"
-            rows="12"
-            placeholder="Paste the write-up content here"
-          ></textarea>
-          @if (hasManualControlError('raw_content', 'required')) {
-            <span class="field-error ui-field-error">Content is required.</span>
-          }
-        </label>
-
-        <div class="form-actions">
-          <button class="ui-button submit-button" type="submit" [disabled]="isSubmitting">
-            {{ submitLabel }}
-          </button>
-        </div>
-      </form>
+      <app-add-manual-form
+        [form]="manualForm"
+        [isSubmitting]="isSubmitting"
+        [submitLabel]="submitLabel"
+        (submitted)="submitSource()"
+      />
     }
   </section>
 
-  @if (createdSource) {
-    <section class="feedback-card ui-card ui-card-success">
-      <h3 class="ui-card-title">Source added</h3>
-      <p class="ui-copy">
-        <strong>{{ createdSource.title || 'Untitled source' }}</strong> is now stored with status
-        <strong>{{ createdSource.status }}</strong
-        >.
-      </p>
-      @if (createdSource.status === 'pending' || createdSource.status === 'processing') {
-        <p class="ui-copy">Processing is still running. It will appear in Ask when ready.</p>
-      } @else if (createdSource.status === 'ready') {
-        <p class="ui-copy">This source is already ready to be used in Ask.</p>
-      } @else if (createdSource.status === 'failed') {
-        <p class="ui-copy">
-          Processing failed.
-          @if (createdSource.error_message) {
-            {{ createdSource.error_message }}
-          }
-        </p>
-      }
-      <a routerLink="/sources" class="feedback-link ui-link-button">Open sources</a>
-    </section>
-  }
-
-  @if (errorMessage) {
-    <section class="feedback-card ui-card ui-card-error">
-      <h3 class="ui-card-title">Could not add the source</h3>
-      <p class="ui-copy">{{ errorMessage }}</p>
-    </section>
-  }
+  <app-source-create-feedback [createdSource]="createdSource" [errorMessage]="errorMessage" />
 </section>

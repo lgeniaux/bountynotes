@@ -1,0 +1,22 @@
+<div class="mode-switch" aria-label="Source mode">
+  <button
+    class="mode-switch-button"
+    type="button"
+    [class.mode-switch-button-active]="selectedMode === 'url'"
+    [attr.aria-pressed]="selectedMode === 'url'"
+    [disabled]="disabled"
+    (click)="modeChange.emit('url')"
+  >
+    URL
+  </button>
+  <button
+    class="mode-switch-button"
+    type="button"
+    [class.mode-switch-button-active]="selectedMode === 'manual'"
+    [attr.aria-pressed]="selectedMode === 'manual'"
+    [disabled]="disabled"
+    (click)="modeChange.emit('manual')"
+  >
+    Manual
+  </button>
+</div>

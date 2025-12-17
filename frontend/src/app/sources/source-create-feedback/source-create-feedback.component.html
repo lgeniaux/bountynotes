@@ -1,0 +1,30 @@
+@if (createdSource) {
+  <section class="feedback-card ui-card ui-card-success">
+    <h3 class="ui-card-title">Source added</h3>
+    <p class="ui-copy">
+      <strong>{{ createdSource.title || 'Untitled source' }}</strong> is now stored with status
+      <strong>{{ createdSource.status }}</strong
+      >.
+    </p>
+    @if (createdSource.status === 'pending' || createdSource.status === 'processing') {
+      <p class="ui-copy">Processing is still running. It will appear in Ask when ready.</p>
+    } @else if (createdSource.status === 'ready') {
+      <p class="ui-copy">This source is already ready to be used in Ask.</p>
+    } @else if (createdSource.status === 'failed') {
+      <p class="ui-copy">
+        Processing failed.
+        @if (createdSource.error_message) {
+          {{ createdSource.error_message }}
+        }
+      </p>
+    }
+    <a routerLink="/sources" class="feedback-link ui-link-button">Open sources</a>
+  </section>
+}
+
+@if (errorMessage) {
+  <section class="feedback-card ui-card ui-card-error">
+    <h3 class="ui-card-title">Could not add the source</h3>
+    <p class="ui-copy">{{ errorMessage }}</p>
+  </section>
+}

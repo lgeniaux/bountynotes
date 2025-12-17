@@ -1,0 +1,38 @@
+<form class="source-form" [formGroup]="form" (ngSubmit)="submitted.emit()">
+  <label class="field ui-field">
+    <span class="field-label ui-field-label">Title (optional)</span>
+    <input
+      class="ui-field-input"
+      type="text"
+      formControlName="title"
+      placeholder="Optional short label"
+      maxlength="255"
+    />
+    @if (hasControlError('title', 'maxlength')) {
+      <span class="field-error ui-field-error">Title must stay under 255 characters.</span>
+    }
+  </label>
+
+  <label class="field ui-field">
+    <span class="field-label ui-field-label">URL</span>
+    <input
+      class="ui-field-input url-input"
+      type="url"
+      formControlName="url"
+      placeholder="https://example.com/writeup"
+      maxlength="2048"
+    />
+    @if (hasControlError('url', 'required')) {
+      <span class="field-error ui-field-error">URL is required.</span>
+    }
+    @if (hasControlError('url', 'maxlength')) {
+      <span class="field-error ui-field-error">URL must stay under 2048 characters.</span>
+    }
+  </label>
+
+  <div class="form-actions">
+    <button class="ui-button submit-button" type="submit" [disabled]="isSubmitting">
+      {{ submitLabel }}
+    </button>
+  </div>
+</form>

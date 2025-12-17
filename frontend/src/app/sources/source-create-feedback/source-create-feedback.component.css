@@ -1,0 +1,14 @@
+.feedback-card {
+  display: grid;
+  gap: 18px;
+}
+
+.feedback-link {
+  justify-self: start;
+}
+
+@media (max-width: 720px) {
+  .feedback-link {
+    width: 100%;
+  }
+}

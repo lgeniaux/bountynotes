@@ -9,100 +9,10 @@
   gap: 8px;
 }
 
-.composer-card,
-.feedback-card {
-  gap: 18px;
-}
-
 .composer-card {
   display: grid;
   gap: 18px;
 }
 
-.mode-switch {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.mode-switch-button {
-  min-height: 48px;
-  padding: 0 16px;
-  border: 3px solid var(--ui-border);
-  border-radius: var(--ui-radius-sm);
-  background: var(--ui-surface);
-  box-shadow: var(--ui-shadow-hard-sm);
-  font: inherit;
-  font-family: var(--ui-heading-font);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--ui-text-strong);
-  cursor: pointer;
-  transition:
-    transform 120ms ease,
-    box-shadow 120ms ease,
-    background-color 120ms ease,
-    color 120ms ease;
-}
-
-.mode-switch-button:hover:not(:disabled) {
-  transform: translate(2px, 2px);
-  box-shadow: var(--ui-shadow-hard-xs);
-}
-
-.mode-switch-button:active:not(:disabled) {
-  transform: translate(4px, 4px);
-  box-shadow: none;
-}
-
-.mode-switch-button-active {
-  background: var(--ui-accent);
-  color: var(--ui-accent-contrast);
-}
-
-.mode-switch-button:disabled {
-  cursor: wait;
-}
-
-.source-form {
-  display: grid;
-  gap: 18px;
-}
-
-.ui-field-textarea {
-  resize: vertical;
-  min-height: 220px;
-}
-
-.url-input {
-  min-height: 54px;
-}
-
-.form-actions {
-  display: grid;
-  justify-items: start;
-  gap: 10px;
-}
-
-.submit-button {
-  min-width: 180px;
-}
-
-.feedback-link {
-  justify-self: start;
-}
-
 @media (max-width: 720px) {
-  .form-actions {
-    justify-items: stretch;
-  }
-
-  .mode-switch {
-    grid-template-columns: 1fr;
-  }
-
-  .form-actions button,
-  .feedback-link {
-    width: 100%;
-  }
 }
